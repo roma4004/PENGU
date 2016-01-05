@@ -87,7 +87,7 @@ namespace VS15CppNET452 {
 			this->Controls->Add(this->btnStart);
 			this->Controls->Add(this->btnExit);
 			this->Name = L"MyForm";
-			this->Text = L"MyForm";
+			this->Text = L"PENGU";
 			this->ResumeLayout(false);
 
 		}
