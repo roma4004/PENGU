@@ -1,3 +1,4 @@
+#include <iostream>
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 #include "map.h"
@@ -11,6 +12,42 @@ b2Vec2 Gravity(0.f, 9.8f);
 b2World World(Gravity);
 
 RenderWindow window(VideoMode(800, 600, 32), "Test PENGU");
+//пилотная версия генератора карты
+void CreateWorld() {
+	// заливаем снизу текстурой;
+	for (int i = HEIGHT_MAP - 1; i > HEIGHT_MAP - 5; i--) {
+		for (int j = 0; j < WIDTH_MAP; j++)
+			TileMap[i][j] = '3';
+	}
+	// обводка карты
+	for (int j = 0; j < WIDTH_MAP; j++) {
+		TileMap[0][j] = '3';
+		if (j < (HEIGHT_MAP - 1)) {
+			TileMap[j][0] = '3';
+			TileMap[j][WIDTH_MAP - 1] = '3';
+		}
+	}
+	//рандомим параметры горы координата и высота
+	int arrgor[5][2], start;
+	srand(time(0));
+	for (int i = 0; i < 5; i++) {
+		arrgor[i][0] = rand() % WIDTH_MAP;
+		arrgor[i][1] = ((rand() % 3)+1)*3;
+	}
+	//отрисовываем гору
+	for (int count = 0; count < 5; count++)
+		for (int h = 0; h <= arrgor[count][1]; h++)
+			for (int k = 0; k <= (arrgor[count][1] * 2 - (h*2)); k++) {
+					start = arrgor[count][0]+h+k;
+					if (start >= WIDTH_MAP)
+						start = WIDTH_MAP - 1;
+					if (start <= 0)
+						start = 1;
+					TileMap[(HEIGHT_MAP - 5) - h][start] = '3';
+			}
+
+}
+
 void setObj(float x, float y) {
 			b2PolygonShape gr;
 			gr.SetAsBox(16 / SCALE, 16 / SCALE);
@@ -32,7 +69,7 @@ void setBody(float x, float y, long type) {
 		bdef.position.Set(x / SCALE, y / SCALE);
 		b2FixtureDef fdef;
 		fdef.density = 1;
-		fdef.restitution = 0.8;
+		fdef.restitution = 0.8f;
 		fdef.shape = &disk;
 		b2Body *b_disk = World.CreateBody(&bdef);
 		b_disk->CreateFixture(&fdef);
@@ -91,10 +128,10 @@ public:
 	}
 	void move(int v) {
 		switch (v) {
-		case 1: mpeople->ApplyLinearImpulse(b2Vec2(0, 0.5), mpeople->GetWorldCenter(),1); break;
-		case 2: mpeople->ApplyLinearImpulse(b2Vec2(0, -0.5),mpeople->GetWorldCenter(),1); break;
-		case 3: mpeople->ApplyLinearImpulse(b2Vec2(0.5, 0), mpeople->GetWorldCenter(),1); break;
-		case 4: mpeople->ApplyLinearImpulse(b2Vec2(-0.5, 0),mpeople->GetWorldCenter(),1); break;
+		case 1: mpeople->ApplyLinearImpulse(b2Vec2(0, 0.9), mpeople->GetWorldCenter(),1); break;
+		case 2: mpeople->ApplyLinearImpulse(b2Vec2(0, -0.9),mpeople->GetWorldCenter(),1); break;
+		case 3: mpeople->ApplyLinearImpulse(b2Vec2(0.9, 0), mpeople->GetWorldCenter(),1); break;
+		case 4: mpeople->ApplyLinearImpulse(b2Vec2(-0.9, 0),mpeople->GetWorldCenter(),1); break;
 		}
 	
 	}
@@ -117,7 +154,7 @@ void menu(RenderWindow & window) {
 	menuTexture1.loadFromFile("images/111.png");
 	menuTexture2.loadFromFile("images/333.png");
 	Sprite menu1(menuTexture1), menu2(menuTexture2);
-	bool isMenu = 1;
+	bool isMenu = 0;
 	int menuNum = 0;
 	menu1.setPosition(100, 30);
 	menu2.setPosition(100, 90);
@@ -163,12 +200,14 @@ int main()
 	sBox.setOrigin(16, 16);
 	sDisk.setOrigin(16, 16);
 
+	CreateWorld();
 	for (int i = 0; i < HEIGHT_MAP; i++)
 		for (int j = 0; j < WIDTH_MAP; j++)
 		{
 			if ((TileMap[i][j] == '3')) setObj(j * 32.f, i  * 32.f);
 		}
 	
+
 	mob mob1(800, 50);
 	mob mob2(900, 50);
 
