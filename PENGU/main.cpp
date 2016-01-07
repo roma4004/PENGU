@@ -1,8 +1,9 @@
+#include <SFML/Graphics.hpp>
+#include <Box2D/Box2D.h> 
 #include "Mob.h"
 #include "map.h"
-#include "view.h"	  
-
-using namespace sf;
+#include "view.h"
+using namespace sf;	 
 
 void DrawText(int fontSize, float posX, float posY, String setText,
 	Color colorOfText = Color::Black, String FontFamily = "times");
@@ -46,7 +47,7 @@ void setBody(float x, float y, long type) {
 	}
 }
 
-void menu(RenderWindow & window) {
+void menu(RenderWindow &window) {
 	Texture menuTexture1, menuTexture2, menuTexture3, aboutTexture, menuBackground;
 	menuTexture1.loadFromFile("images/111.png");
 	menuTexture2.loadFromFile("images/333.png");
@@ -68,7 +69,7 @@ while (isMenu)
 		if (Mouse::isButtonPressed(Mouse::Left))
 		{
 			if (menuNum == 1) isMenu = false;
-			if (menuNum == 2) { window.close(); isMenu = false; }
+			if (menuNum == 2) {window.close(); isMenu = false; }
 		}
 
 		window.draw(menu1);
@@ -98,8 +99,7 @@ int main()
 	sDisk.setOrigin(16.f, 16.f);
 
 	for (int i = 0; i < HEIGHT_MAP; i++)
-		for (int j = 0; j < WIDTH_MAP; j++)
-		{
+		for (int j = 0; j < WIDTH_MAP; j++){
 			if ((TileMap[i][j] == '3')) setObj(j * 32.f, i  * 32.f);
 		}
 	

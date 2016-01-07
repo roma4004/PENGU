@@ -18,21 +18,15 @@
     <ClCompile Include="main.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="Mob.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main.h">
+    <ClInclude Include="Mob.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="view.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="map.h">
-      <Filter>Файлы исходного кода</Filter>
-    </ClInclude>
-    <ClInclude Include="view.h">
-      <Filter>Файлы исходного кода</Filter>
-    </ClInclude>
-    <ClInclude Include="Mob.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
