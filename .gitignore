@@ -82,6 +82,7 @@ artifacts/
 *.obj
 *.pch
 ##*.pdb
+[Oo]utput/*.pdb
 *.pgc
 *.pgd
 *.rsp
