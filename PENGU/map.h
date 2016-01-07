@@ -1,9 +1,9 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+using namespace sf;
 const int HEIGHT_MAP = 25;
 const int WIDTH_MAP = 216;
 
-sf::String TileMap[HEIGHT_MAP] = {
+String TileMap[HEIGHT_MAP] = {
 
 /*0*/	"33333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333333",
 /*32*/	"3                                                                                                                                                                                                                     3",

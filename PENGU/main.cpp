@@ -1,19 +1,12 @@
-#include <SFML/Graphics.hpp>
-#include <Box2D/Box2D.h>
+#include "Mob.h"
 #include "map.h"
-#include "view.h"
+#include "view.h"	  
 
 using namespace sf;
+
 void DrawText(int fontSize, float posX, float posY, String setText,
 	Color colorOfText = Color::Black, String FontFamily = "times");
-
-const float SCALE = 30.f;
-const float DEG = 57.29577f;
-
-b2Vec2 Gravity(0.f, 9.8f);
-b2World World(Gravity);
-
-RenderWindow window(VideoMode(800, 600, 32), "PENGU");
+	 
 void setObj(float x, float y) {
 			b2PolygonShape gr;
 			gr.SetAsBox(16.f / SCALE, 16.f / SCALE);
@@ -22,8 +15,7 @@ void setObj(float x, float y) {
 			b2Body *body = World.CreateBody(&bdef);
 			body->CreateFixture(&gr, 1.f);
 			body->SetUserData("ground");
-			//b2Draw DrawSegment;
-
+			//b2Draw DrawSegment;  
 }
 
 void setBody(float x, float y, long type) {
@@ -53,67 +45,6 @@ void setBody(float x, float y, long type) {
 		body->SetUserData("box");
 	}
 }
-
-class mob {
-public: 
-	float ox, oy;
-	Texture texture;
-	Sprite sprite;
-	b2Vec2 position;
-	float angle;
-	b2Body *mpeople;
-	bool nav=true;
-	mob(float x, float y) {
-		texture.loadFromFile("images/tilemap.png");
-		sprite.setTexture(texture);
-		sprite.setTextureRect(IntRect(0,32,32,64));
-		sprite.setOrigin(16.f, 32.f);
-		sprite.setPosition(x,y);
-
-		b2PolygonShape shape;
-		shape.SetAsBox(16.f / SCALE, 32.f / SCALE);
-		b2BodyDef bdef;
-		bdef.type = b2_dynamicBody;
-		bdef.position.Set(x / SCALE, y / SCALE);
-		b2FixtureDef fdef;
-		fdef.density = 1;
-		fdef.filter.groupIndex = -2;
-		fdef.shape = &shape;
-		mpeople = World.CreateBody(&bdef);
-		mpeople->CreateFixture(&fdef);
-		mpeople->SetUserData("Player");
-	}
-	void Update() {
-		b2Vec2 pos = mpeople->GetPosition();
-		angle	=	 mpeople->GetAngle();
-		ox = pos.x*SCALE;
-		oy = pos.y*SCALE;
-		sprite.setPosition(pos.x*SCALE, pos.y*SCALE);
-		sprite.setRotation(angle*DEG);
-		window.draw(sprite);
-	}
-	void move(int v) {
-		switch (v) {
-		case 1: mpeople->ApplyLinearImpulse(b2Vec2( 0.f,   0.5f), mpeople->GetWorldCenter(),1); break;
-		case 2: mpeople->ApplyLinearImpulse(b2Vec2( 0.f,  -0.5f), mpeople->GetWorldCenter(),1); break;
-		case 3: mpeople->ApplyLinearImpulse(b2Vec2( 0.5f,  0.f),  mpeople->GetWorldCenter(),1); break;
-		case 4: mpeople->ApplyLinearImpulse(b2Vec2(-0.5f,  0.f),  mpeople->GetWorldCenter(),1); break;
-		}
-	
-	}
-	void patrul(int start, int end) {
-		b2Vec2 pos = mpeople->GetPosition();
-		mpeople->SetTransform(b2Vec2(pos.x,pos.y),0.f);
-		if (nav) {
-			mpeople->ApplyLinearImpulse(b2Vec2(0.2f, 0.f), mpeople->GetWorldCenter(), 1);
-			if ((pos.x*SCALE) >= end) { nav = false; mpeople->SetLinearVelocity(b2Vec2(0.f, 0.f)); }
-		}
-		else {
-			mpeople->ApplyLinearImpulse(b2Vec2(-0.2f, 0.f), mpeople->GetWorldCenter(), 1);
-			if ((pos.x*SCALE) <= start) { nav = true; mpeople->SetLinearVelocity(b2Vec2(0.f,0.f)); }
-		}
-	}
-};
 
 void menu(RenderWindow & window) {
 	Texture menuTexture1, menuTexture2, menuTexture3, aboutTexture, menuBackground;
@@ -172,8 +103,8 @@ int main()
 			if ((TileMap[i][j] == '3')) setObj(j * 32.f, i  * 32.f);
 		}
 	
-	mob mob1(800.f, 50.f);
-	mob mob2(900.f, 50.f);
+	Mob mob1(800.f, 50.f);
+	Mob mob2(900.f, 50.f);
 
 	while (window.isOpen()) {
 		Event e;
