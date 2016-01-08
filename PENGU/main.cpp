@@ -16,8 +16,8 @@ void setObj(float x, float y) {
 			body->SetUserData("ground");
 			//b2Draw DrawSegment;  
 }	 
-void setBody(float x, float y, long type) {
-	if (type == 'disk') {
+void setBody(float x, float y, String type) {
+	if (type == "disk") {
 		b2CircleShape disk;
 		disk.m_radius = (16.f / SCALE);
 		b2BodyDef bdef;
@@ -31,7 +31,7 @@ void setBody(float x, float y, long type) {
 		b_disk->CreateFixture(&fdef);
 		b_disk->SetUserData("disk");
 	}  
-	if (type == 'box') {
+	if (type == "box") {
 		b2PolygonShape shape;
 		shape.SetAsBox( (16.f / SCALE), (16.f / SCALE) );
 		b2BodyDef bdef;
@@ -42,12 +42,12 @@ void setBody(float x, float y, long type) {
 		body->SetUserData("box");
 	}
 }	
-void menu(RenderWindow &window) {
+void menu(RenderWindow &window) {	//стоит вынести создание текстур в отдельный класс
 	Texture menuTexture1, menuTexture2, menuTexture3, aboutTexture, menuBackground;
 	menuTexture1.loadFromFile("images/111.png");
 	menuTexture2.loadFromFile("images/333.png");
 	Sprite menu1(menuTexture1), menu2(menuTexture2);
-	bool isMenu = 0;
+	bool isMenu = 0;							  //set 1 to on or set 0 to switch off
 	int menuNum = 0;
 	menu1.setPosition(100.f, 30.f);
 	menu2.setPosition(100.f, 90.f);
@@ -56,7 +56,7 @@ while (isMenu){
 		menu2.setColor(Color::White);
 		menuNum = 0;
 		window.clear(Color(129, 181, 221));
-
+		
 		if ( IntRect(100, 30, 300, 50).contains(Mouse::getPosition(window)) ) {
 			menu1.setColor(Color::Blue);
 			menuNum = 1; 
@@ -97,7 +97,7 @@ int main(){
 		}		
 	Mob mob1(800.f, 50.f);
 	Mob mob2(900.f, 50.f);
-
+	mob1.InvetoryAdd(43, 34);
 	while (window.isOpen()) {
 		Event e;
 		while (window.pollEvent(e)) {
@@ -135,10 +135,10 @@ int main(){
 		}	
 		getplayercoordinateforview(mob1.ox, mob1.oy);
 		
-		mob1.Update();
-		
+		mob1.update();
+
 		mob2.patrul(600,1800);
-		mob2.Update();
+		mob2.update();
 				
 	    //viewMove();
 		DrawText(18, 20, 100, L"Выводимый текст");

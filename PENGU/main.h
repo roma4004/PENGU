@@ -3,7 +3,7 @@ using namespace sf;
 
 void setObj(float x, float y);
 
-void setBody(float x, float y, long type);	
+void setBody(float x, float y, String type);	
 
 void menu(RenderWindow &window);
 
