@@ -1,8 +1,8 @@
 #pragma once
 using namespace sf;
 View view;
-void getplayercoordinateforview(float x, float y) { 
-	view.setCenter(x, y); 
+void setCamCenter(float coordX, float coordY) {
+	view.setCenter(coordX, coordY);
 	}
 void viewMove() {
 	if (Keyboard::isKeyPressed(Keyboard::D)) view.move( 8.f,  0.f);

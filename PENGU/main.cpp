@@ -168,7 +168,7 @@ int main(){
 				window.draw(sMap);
 			}
 		}	
-		getplayercoordinateforview(mob1.ox, mob1.oy);
+		setCamCenter(mob1.ox, mob1.oy);
 		
 		mob1.update();
 

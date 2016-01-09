@@ -3,7 +3,9 @@ using namespace sf;
 
 void setObj(float x, float y);
 
-void setBody(float x, float y, String type);	
+void setBody(float x, float y, String type);
+
+void setCamCenter(float coordX, float coordY);
 
 void menu(RenderWindow &window);
 

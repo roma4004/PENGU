@@ -28,7 +28,7 @@ class Mob{
 		bool isSelect;			     //mark which indicate mouse selected or not mob object
 		int invCntElem = 0;			 //total counter of element in the inventory
 		int invMaxItem = 10;         //max element of the inventory
-		int invLimitEachItem = 100;  //max limit of each element in the inventory
+		int invLimitEachItem = 10;  //max limit of each element in the inventory
 		//int **ptr_inventoryMas = (int **)new int[invMaxItem][2];   		  
 		//такая запись позволяет объявлять массив через переменную длинну, только для самого левого значение, остальные должны быть константными mas[perem][5]
 		
@@ -47,8 +47,10 @@ class Mob{
 		float ox, oy; 
 		Mob(float x, float y);	
 	    ~Mob();	
+
 		void InvetoryAdd(int idElem, int cntElem);
 		void InvetoryDropAllElem();
+		int InvetoryGetCntElem(int idElem);
 		void update();
 		void move(int v);
 		void patrul(int start, int end);
@@ -89,16 +91,22 @@ Mob::Mob(float SpawnPosX, float SpawnPosY):isSelect(false), invCntElem(0) {
  //////////////////////////////////////////////////////////////////////////////////////////
 void Mob::InvetoryAdd(int idElem, int cntElem) {					
 	for (int i = 0; i < invCntElem; i++) {
-		if((inventoryMas[i][0] == idElem)&&(inventoryMas[i][1] < invLimitEachItem)) {							
+		if( (inventoryMas[i][0] == idElem) && (inventoryMas[i][1] < invLimitEachItem) ) {							
 			inventoryMas[i][1] += cntElem;				//todo: учесть если после добавления будет больше сотни		
 			return;												
 		}
 	}
-	inventoryMas[invCntElem][0] = idElem;
-	inventoryMas[invCntElem][1] = cntElem;
-	invCntElem++;  
+	if (invCntElem < invMaxItem ) {
+		inventoryMas[invCntElem][0] = idElem;
+		inventoryMas[invCntElem][1] = cntElem;
+		invCntElem++;
+	}
+	//else {
+	//	return; //show message "not enaugt free space in the inventory"	возле места подбора вещей и этот поселенец должен отправиться на склад сгрузить лишнее.
+	//}  
 }
-void Mob::InvetoryDropAllElem() {
+void Mob::InvetoryDropAllElem() {  
+ // for (invCntElem; invCntElem > 0 ; invCntElem--;) {
 	for (int i = 0; i < invCntElem; i++) {
 		//drop code, obj in inventory are create in world in the coordinate of this mob
 		//дописать создание вычитаемых объектов из инвентаря в мире с координамати игрока
@@ -110,6 +118,21 @@ void Mob::InvetoryDropAllElem() {
 //void Mob::InvetoryCompact() {}
 //void Mob::InvetoryDropElem(int idElem, int cntElem) {}
 //void Mob::InvetoryUsedElem(int idElem, int cntElem) {}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+/// \проход по всему в инвентаре
+///  если id найден, то возвращает кол-во
+//////////////////////////////////////////////////////////////////////////////////////////
+int Mob::InvetoryGetCntElem(int idElem) {
+	int result; result = 0;
+	for (int i = 0; i < invCntElem; i++) {
+		if (inventoryMas[i][0] == idElem) {
+			result += inventoryMas[i][1];
+		}								  //опять же не учитывается если там будет несколько ячеек	 		 	   
+	}return result; //можно просто хранить общее колво предметов, когда выводить уже проставлять им щетчик, 
+//даже если в ячейке 155 ед. то удобно будет разбить их на две и вывести два спрайта, но хранить будет как одну запись.
+}  
 void Mob::update() {
 	b2Vec2 pos = mpeople->GetPosition();
 	mobAngle = mpeople->GetAngle();
