@@ -5,7 +5,42 @@
 #include "view.h"
 #include "main.h"
 using namespace sf;	 
-	 
+//пилотная версия мира
+void CreateWorld() {
+	int OfMountains[30][2], start; // всего 30 гор по 2 параметра 0-координа по X, 1- высота горы
+	// заливаем снизу текстурой;
+	for (int i = HEIGHT_MAP - 1; i > HEIGHT_MAP - 5; i--) {// заливаем пол текстурой 4 полоски
+		for (int j = 0; j < WIDTH_MAP; j++)
+			TileMap[i][j] = '3';
+	}
+	// обводка карты
+	for (int j = 0; j < WIDTH_MAP; j++) {//обводим сверху, слева и справа
+		TileMap[0][j] = '3';// полоска сверху 
+		if (j < (HEIGHT_MAP - 1)) {//так как карта прямоугольная надо проверять чтоб j не выходила за высоту иначе будет ошибка
+			TileMap[j][0] = '3';// полоска слева
+			TileMap[j][WIDTH_MAP - 1] = '3'; // полоска справа
+		}
+	}
+	//рандомим параметры горы координата и высота	
+	srand(time(0)); // нужная штуковина
+	for (int i = 0; i < 30; i++) {// для 30 гор под завязку массива
+		OfMountains[i][0] = rand() % WIDTH_MAP; // координата по х
+		OfMountains[i][1] = (rand() % 12) + 10; //высота +5 исключает горы высотой меньше 10
+	}
+	//отрисовываем гору
+	for (int count = 0; count < 30; count++) // проходимся по каждой горе
+		for (int h = 0; h <= OfMountains[count][1]-4; h++) // рисуем гору полосками начиная с самой нижней полоски и заканчивая (высота-4) чтобы исключить острый конец горы и добавить плавности (count переключает горы)
+			for (int k = 0; k <= (OfMountains[count][1] * 2 - (h * 2)); k++) {// самое интересное каждая полоска должна закончиться раньше в прогрессии.
+				start = OfMountains[count][0] + h + k;// считаем начало прорисовки полоски для каждой полоски смещаем старт на 1 блок вправа что была ступенька
+
+				if (start >= WIDTH_MAP)// проверяем выход за край справа
+					start = WIDTH_MAP - 1;
+				if (start <= 0)// проверяем выход за край слева
+					start = 1;
+				TileMap[(HEIGHT_MAP - 5) - h][start] = '3'; // собственно заливаем 3-йками
+			}
+}// конец
+
 void setObj(float x, float y) {
 			b2PolygonShape gr;
 			gr.SetAsBox(16.f / SCALE, 16.f / SCALE);
@@ -90,7 +125,7 @@ int main(){
 	sMap.setOrigin (16.f, 16.f);
 	sBox.setOrigin (16.f, 16.f);
 	sDisk.setOrigin(16.f, 16.f);
-
+	CreateWorld();
 	for (int i = 0; i < HEIGHT_MAP; i++)
 		for (int j = 0; j < WIDTH_MAP; j++){
 			if (TileMap[i][j] == '3') setObj( (j * 32.f), (i  * 32.f) );
