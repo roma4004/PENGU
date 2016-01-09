@@ -1,6 +1,5 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-
+		   
 const int HEIGHT_MAP = 40;
 const int WIDTH_MAP = 146;
 

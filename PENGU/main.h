@@ -1,6 +1,8 @@
 #pragma once
 using namespace sf;
 
+void CreateRandWorld();
+
 void setObj(float x, float y);
 
 void setBody(float x, float y, String type);

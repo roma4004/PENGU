@@ -163,6 +163,7 @@ void Mob::patrul(int start, int end) {
 	}
 }
 void Mob::select() {
+	//if (Mouse::isButtonPressed(Mouse::Left)) {
 	isSelect = isSelect ? false : true;
 }
 bool Mob::isSelected() {
