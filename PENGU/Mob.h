@@ -1,9 +1,11 @@
 #pragma once
 using namespace sf;
-RenderWindow window(VideoMode(800, 600, 32), "PENGU");
+int DefWinSizeX = 1024;
+int DefWinSizeY = 768;
+RenderWindow window(VideoMode(DefWinSizeX, DefWinSizeY, 32), "PENGU");
 const float SCALE = 30.f;
 const float DEG = 57.29577f;
-
+bool isControl = true;
 b2Vec2 Gravity(0.f, 9.8f);
 b2World World(Gravity);	
 
@@ -52,7 +54,7 @@ class Mob{
 		void InvetoryDropAllElem();
 		int InvetoryGetCntElem(int idElem);
 		void update();
-		void move(int v);
+		void move();//int v
 		void patrul(int start, int end);
 		void select();
 		bool isSelected();
@@ -142,13 +144,29 @@ void Mob::update() {
 	mobSprite.setRotation(mobAngle*DEG);
 	window.draw(mobSprite);
 }
-void Mob::move(int v) {
-	switch (v) {
-	case 1: mpeople->ApplyLinearImpulse(b2Vec2( 0.f,  0.5f), mpeople->GetWorldCenter(), 1); break;
-	case 2: mpeople->ApplyLinearImpulse(b2Vec2( 0.f, -0.5f), mpeople->GetWorldCenter(), 1); break;
-	case 3: mpeople->ApplyLinearImpulse(b2Vec2( 0.5f, 0.f),  mpeople->GetWorldCenter(), 1); break;
-	case 4: mpeople->ApplyLinearImpulse(b2Vec2(-0.5f, 0.f),  mpeople->GetWorldCenter(), 1); break;
+void Mob::move() {	  //move(int v) 
+	//switch (v) {
+	//case 1: mpeople->ApplyLinearImpulse(b2Vec2( 0.f,  0.5f), mpeople->GetWorldCenter(), 1); break;	 1
+	//case 2: mpeople->ApplyLinearImpulse(b2Vec2( 0.f, -0.5f), mpeople->GetWorldCenter(), 1); break;	 2
+	//case 3: mpeople->ApplyLinearImpulse(b2Vec2( 0.5f, 0.f),  mpeople->GetWorldCenter(), 1); break;	 3
+	//case 4: mpeople->ApplyLinearImpulse(b2Vec2(-0.5f, 0.f),  mpeople->GetWorldCenter(), 1); break;	 4
+	//}
+
+	if ((Keyboard::isKeyPressed(Keyboard::Right)) && (isControl)) {
+		mpeople->ApplyLinearImpulse(b2Vec2(0.5f, 0.f), mpeople->GetWorldCenter(), 1);
 	}
+	if ((Keyboard::isKeyPressed(Keyboard::Left))  && (isControl)) { 
+		mpeople->ApplyLinearImpulse(b2Vec2(-0.5f, 0.f), mpeople->GetWorldCenter(), 1); 
+	}
+	if ((Keyboard::isKeyPressed(Keyboard::Up))    && (isControl)) { 
+		mpeople->ApplyLinearImpulse(b2Vec2(0.f, -0.5f), mpeople->GetWorldCenter(), 1); 
+	}
+	if ((Keyboard::isKeyPressed(Keyboard::Down))  && (isControl)) { 
+		mpeople->ApplyLinearImpulse(b2Vec2(0.f, 0.5f), mpeople->GetWorldCenter(), 1);
+	}
+
+
+
 }
 void Mob::patrul(int start, int end) {
 	b2Vec2 pos = mpeople->GetPosition();
@@ -162,6 +180,7 @@ void Mob::patrul(int start, int end) {
 		if ( (pos.x*SCALE) <= start) { nav = true; mpeople->SetLinearVelocity(b2Vec2(0.f, 0.f)); }
 	}
 }
+	
 void Mob::select() {
 	//if (Mouse::isButtonPressed(Mouse::Left)) {
 	isSelect = isSelect ? false : true;

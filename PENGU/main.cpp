@@ -1,5 +1,9 @@
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h> 
+//#include <iostream>
+//#include <windows.h>
+#include <stdio.h>
+#include <stdlib.h>
 #pragma hdrstop	       //указывает что файлы выше общие для всех файлов и не нужндаются в перекомпиляции, в итоге ускоряет комипиляцию
 #include "Mob.h"
 #include "map.h"
@@ -88,30 +92,77 @@ void menu(RenderWindow &window) {	//стоит вынести создание текстур в отдельный к
 	menu1.setPosition(100.f, 30.f);		              // установка позиции,
 	menu2.setPosition(100.f, 90.f);		             // для пунктов меню
 	while (window.isOpen()){
-		Event e; while (window.pollEvent(e)) if (e.type == Event::Closed) window.close(); 	   // закрываем окно если нажат крестик
-				window.clear(Color(129,181,221));  // отчистка окна под меню	 
-				menu1.setColor(Color::White);
-				menu2.setColor(Color::White);
-				if (IntRect(100, 30, 300, 50).contains(Mouse::getPosition(window))) {	  // меняем заливку тектуры пункта меню 1 на синий при наведении
-					menu1.setColor(Color::Blue);									     //  и если была нажата левая мыши то завершение цыкла меню, то есть запуск игры
-					if (Mouse::isButtonPressed(Mouse::Left)) break;
-				} 
-				if (IntRect(100, 90, 300, 50).contains(Mouse::getPosition(window))) {	   // меняем заливку тектуры пункта меню 2 на синий при наведении
-					menu2.setColor(Color::Blue);										  //  и если была нажата левая мыши то закрытие окна и цыкла, то есть выход из игры
-					if (Mouse::isButtonPressed(Mouse::Left)) { window.close(); break; }
-				} 
-		window.draw(menu1);	    //отрисовка  
-		window.draw(menu2);	   // пунктов меню
-		window.display();	  //  и их отображение
+		eventsOn();
+		window.clear(Color(129,181,221));  // отчистка окна под меню	 
+		menu1.setColor(Color::White);
+		menu2.setColor(Color::White);
+		if (IntRect(100, 30, 300, 50).contains(Mouse::getPosition(window))) {	  // меняем заливку тектуры пункта меню 1 на синий при наведении
+			menu1.setColor(Color::Blue);									     //  и если была нажата левая мыши то завершение цыкла меню, то есть запуск игры
+			if (Mouse::isButtonPressed(Mouse::Left)) break;
+		} 
+		if (IntRect(100, 90, 300, 50).contains(Mouse::getPosition(window))) {	   // меняем заливку тектуры пункта меню 2 на синий при наведении
+			menu2.setColor(Color::Blue);										  //  и если была нажата левая мыши то закрытие окна и цыкла, то есть выход из игры
+			if (Mouse::isButtonPressed(Mouse::Left)) { window.close(); break; }
+		} 
+	window.draw(menu1);	    // отрисовка  
+	window.draw(menu2);	   //  пунктов меню
+	window.display();	  //   и их отображение
 	}
-}	
-int main(){	
-	window.setFramerateLimit(60);                   //обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
-	window.setVerticalSyncEnabled(true);		   // так же должно управляться с настроек	
+}
+int drawtxt = 0;    // переменные что потом 
+int drawtxt2 = 0;  //  выводяться как текст
+int zoomCnt = 0;  // позиция приблежения/отдаления
+void eventsOn(){ 
+	Event e;
+	while (window.pollEvent(e)) { 
+		if (e.type == Event::Resized) {
+			view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y));
+		}
+		switch (e.type) {
+		    case Event::KeyPressed : if(e.key.code == Keyboard::Escape)// закрываем окно по Escape
+			case Event::Closed     : window.close();	break;     	  //  или если нажат крестик в углу окна  			 
+			case Event::GainedFocus: isControl = true;	break;       // получение фокуса включаем управление
+			case Event::LostFocus  : isControl = false; break;      // потеря фокуса отключаем управление  			
+			case Event::MouseWheelMoved:  
+				//if ((e.mouseWheel.delta == -2) && (zoomCnt > -10)) { view.reset(FloatRect(0.f, 0.f, e.size.width*0.8f, e.size.height*0.8f)); zoomCnt--; }			if(W>H) 1024/768    =1, 333333333333333		1024/768    =1.3333...	
+				//if ((e.mouseWheel.delta == -1) && (zoomCnt > -10)) { view.reset(FloatRect(0.f, 0.f, e.size.width*0.9f, e.size.height*0.9f)); zoomCnt -= 2; }		if(H>W)  768/1024   =0.75			1024/х	    =0.75		
+				//if ((e.mouseWheel.delta == 1) && (zoomCnt < 10))  { view.reset(FloatRect(0.f, 0.f, e.size.width*1.1f, e.size.height*1.1f)); zoomCnt++; }			if(W>H)	 W/H						 х=	Wn*ratio
+				//if ((e.mouseWheel.delta == 2) && (zoomCnt < 10))  { view.reset(FloatRect(0.f, 0.f, e.size.width*1.2f, e.size.height*1.2f)); zoomCnt += 2; }		if(H>W)	 H/W
+				
+					 // 800>600		     800/600 = 1.333333333333333
+					// 1024>768		    1024/768 = 1.333333333333333
+				//     if (W > H) { ratio = W / H; }			  //если увеличиваем ширину допустим на	W=W+100; то пропорциональный размер высоты  H=(W+100)*(W/H);
+				//else if (H > W) { ratio = H / W; }			  //если увеличиваем высоту	допустим на H=H+100; то пропорциональный размер высоты  W=(H+100)*(H/W);
+			     	// 768>1024		    768/1024 = 0.75
+					// 600>800		    600/800  = 0.75	
+																 
+				//if ((e.mouseWheel.delta == -1) && (zoomCnt > -1)) { view.reset(FloatRect(0.f, 0.f,  1024.f, (( 1024.f)*(H / W) ) ) ); zoomCnt--; }
+				//if ((e.mouseWheel.delta ==  1) && (zoomCnt <  1)) { view.reset(FloatRect(0.f, 0.f,  800.f, ((  800.f)*(H / W) ) ) ); zoomCnt++; }	
 	
-	menu(window);
+				//e.mouseWheel.delta   - на сколько сместилось
+				//e.mouseWheel.x ; 	   - положение пр х курсора в момент смещения
+				//e.mouseWheel.x 	   - положение по у курсора в момент смещения
 
-	view.reset(FloatRect(0.f, 0.f, 800.f, 600.f));
+				float W = view.getSize().x;  // получаем размер камеры   
+				float H = view.getSize().y; //  по х и по у             
+				drawtxt = W; 
+				drawtxt2 = H;
+				if ((e.mouseWheel.delta == -2) && (zoomCnt > -19)) {/*view.zoom(1.40f);*/view.reset(FloatRect(0.f, 0.f, W + 100.f, H + 100.f )); zoomCnt-=2;}	//Отдаление с одинарным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
+				if ((e.mouseWheel.delta == -1) && (zoomCnt > -20)) {/*view.zoom(1.20f);*/view.reset(FloatRect(0.f, 0.f, W +  50.f, H +  50.f )); zoomCnt--; }	//Отдаление с двойным шагом			//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
+				if ((e.mouseWheel.delta ==  1) && (zoomCnt <  10)) {/*view.zoom(0.80f);*/view.reset(FloatRect(0.f, 0.f, W -  50.f, H -  50.f )); zoomCnt++; }	//Приближение с одинарным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
+				if ((e.mouseWheel.delta ==  2) && (zoomCnt <   9)) {/*view.zoom(0.60f);*/view.reset(FloatRect(0.f, 0.f, W - 100.f, H - 100.f )); zoomCnt+=2;}	//Приближение с двойным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
+
+		}  
+	}		
+	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y)); zoomCnt = 0; }
+}
+int main(){	
+
+	window.setFramerateLimit(60);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
+	window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
+	view.reset(FloatRect(0.f, 0.f, DefWinSizeX, DefWinSizeY));// устанавливаем начальный размер камеры 800х600px   
+
+	menu(window);  	
 
 	Texture TextureMap;
 	TextureMap.loadFromFile("images/tilemap.png");
@@ -131,29 +182,24 @@ int main(){
 
 	//mob1.InvetoryAdd(43, 34);
 	Clock clock; //создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
-	bool isControl = true;
+
 	while (window.isOpen()) {
 
+		eventsOn();	   	
 
 		float time = clock.getElapsedTime().asMicroseconds(); //запись прошедшего времени в микросекундах
 	    clock.restart(); //перезагружает время
-		time = time / 800; //скорость игры
+		time = time / 800; //скорость игры	
 
-
-		Event e;
-		while (window.pollEvent(e)) {
-			if (e.type == Event::Closed     ) window.close();	   // закрываем окно если нажат крестик
-			if (e.type == Event::GainedFocus) isControl = true;	  // получение фокуса включаем управление
-			if (e.type == Event::LostFocus  ) isControl = false; // потеря фокуса отключаем управление
-		}		 
 		World.Step( (1.f / 60.f) , 8, 3);
 		window.clear(Color::White);
 
-				if ( (Keyboard::isKeyPressed(Keyboard::Right)) && (isControl) ) { mob1.move(3); }
-				if ( (Keyboard::isKeyPressed(Keyboard::Left) ) && (isControl) ) { mob1.move(4); }
-				if ( (Keyboard::isKeyPressed(Keyboard::Up)   ) && (isControl) ) { mob1.move(2); }
-				if ( (Keyboard::isKeyPressed(Keyboard::Down) ) && (isControl) ) { mob1.move(1); }
-   														   
+		mob1.move();  
+		mob2.move();
+	//	if ((Keyboard::isKeyPressed(Keyboard::Right)) && (isControl)) { mob1.move(3); }
+	//	if ((Keyboard::isKeyPressed(Keyboard::Left) ) && (isControl)) { mob1.move(4); }
+	//	if ((Keyboard::isKeyPressed(Keyboard::Up)   ) && (isControl)) { mob1.move(2); }
+	//	if ((Keyboard::isKeyPressed(Keyboard::Down) ) && (isControl)) { mob1.move(1); }	  
 		
 		for (b2Body* it = World.GetBodyList(); it != 0; it = it->GetNext()) {	
 			if (it->GetUserData() == "box") {
@@ -184,16 +230,15 @@ int main(){
 		mob2.update();
 				
 	    viewMove();
-		DrawText(18, 20, 100, L"Выводимый текст");
+		char buffer[33];
+		DrawText(18, mob1.ox - 30, mob1.oy - 40, itoa(drawtxt, buffer, 10));
+		DrawText(18, mob1.ox - 30, mob1.oy - 50, itoa(drawtxt2, buffer, 10));
+		DrawText(18, mob1.ox - 30, mob1.oy - 60, itoa(zoomCnt, buffer, 10));
 		window.setView(view);
 		window.display();	   
 
-		/*sf::Event event;
-		while (window.pollEvent(event))	{ // The window was resized
-			if (event.type == sf::Event::Resized)
-				doSomethingWithTheNewSize(event.size.width, event.size.height);
-		}  */
-		}
+
+		}  
 	return 0;
 }  
 void DrawText(int fontSize, float posX, float posY, String setText,
