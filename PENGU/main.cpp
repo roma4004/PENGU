@@ -115,26 +115,25 @@ int zoomCnt = 0;  // позиция приблежения/отдаления
 void eventsOn(){ 
 	Event e;
 	while (window.pollEvent(e)) { 
-		if (e.type == Event::Resized) {
-			view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y));
-		}
-		switch (e.type) {
-		    case Event::KeyPressed : if(e.key.code == Keyboard::Escape)// закрываем окно по Escape
-			case Event::Closed     : window.close();	break;     	  //  или если нажат крестик в углу окна  			 
-			case Event::GainedFocus: isControl = true;	break;       // получение фокуса включаем управление
-			case Event::LostFocus  : isControl = false; break;      // потеря фокуса отключаем управление  			
+		//if (e.type == Event::Resized) {
+		//	view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y));
+		//}
+		switch (e.type) { 
+			case Event::Closed         : window.close();	break;     	  //  закрываем окно если нажат крестик в углу окна  			 
+			case Event::GainedFocus    : isControl = true;	break;       // получение фокуса включаем управление
+			case Event::LostFocus      : isControl = false; break;      // потеря фокуса отключаем управление  			
 			case Event::MouseWheelMoved:  
 				//if ((e.mouseWheel.delta == -2) && (zoomCnt > -10)) { view.reset(FloatRect(0.f, 0.f, e.size.width*0.8f, e.size.height*0.8f)); zoomCnt--; }			if(W>H) 1024/768    =1, 333333333333333		1024/768    =1.3333...	
 				//if ((e.mouseWheel.delta == -1) && (zoomCnt > -10)) { view.reset(FloatRect(0.f, 0.f, e.size.width*0.9f, e.size.height*0.9f)); zoomCnt -= 2; }		if(H>W)  768/1024   =0.75			1024/х	    =0.75		
 				//if ((e.mouseWheel.delta == 1) && (zoomCnt < 10))  { view.reset(FloatRect(0.f, 0.f, e.size.width*1.1f, e.size.height*1.1f)); zoomCnt++; }			if(W>H)	 W/H						 х=	Wn*ratio
 				//if ((e.mouseWheel.delta == 2) && (zoomCnt < 10))  { view.reset(FloatRect(0.f, 0.f, e.size.width*1.2f, e.size.height*1.2f)); zoomCnt += 2; }		if(H>W)	 H/W
 				
-					 // 800>600		     800/600 = 1.333333333333333
-					// 1024>768		    1024/768 = 1.333333333333333
+					 // 800>600		ratio = 800/600 = 1.333333333333333
+					// 1024>768		ratio = 1024/768 = 1.333333333333333
 				//     if (W > H) { ratio = W / H; }			  //если увеличиваем ширину допустим на	W=W+100; то пропорциональный размер высоты  H=(W+100)*(W/H);
 				//else if (H > W) { ratio = H / W; }			  //если увеличиваем высоту	допустим на H=H+100; то пропорциональный размер высоты  W=(H+100)*(H/W);
-			     	// 768>1024		    768/1024 = 0.75
-					// 600>800		    600/800  = 0.75	
+			     	// 768>1024		ratio = 768/1024 = 0.75
+					// 600>800		ratio = 600/800  = 0.75	
 																 
 				//if ((e.mouseWheel.delta == -1) && (zoomCnt > -1)) { view.reset(FloatRect(0.f, 0.f,  1024.f, (( 1024.f)*(H / W) ) ) ); zoomCnt--; }
 				//if ((e.mouseWheel.delta ==  1) && (zoomCnt <  1)) { view.reset(FloatRect(0.f, 0.f,  800.f, ((  800.f)*(H / W) ) ) ); zoomCnt++; }	
@@ -147,16 +146,17 @@ void eventsOn(){
 				float H = view.getSize().y; //  по х и по у             
 				drawtxt = W; 
 				drawtxt2 = H;
-				if ((e.mouseWheel.delta == -2) && (zoomCnt > -19)) {/*view.zoom(1.40f);*/view.reset(FloatRect(0.f, 0.f, W + 100.f, (W + 100.f)*(H / W) )); zoomCnt-=2;}	//Отдаление с одинарным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
-				if ((e.mouseWheel.delta == -1) && (zoomCnt > -20)) {/*view.zoom(1.20f);*/view.reset(FloatRect(0.f, 0.f, W +  50.f, (W +  50.f)*(H / W) )); zoomCnt--; }	//Отдаление с двойным шагом			//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
-				if ((e.mouseWheel.delta ==  1) && (zoomCnt <  10)) {/*view.zoom(0.80f);*/view.reset(FloatRect(0.f, 0.f, W -  50.f, (W -  50.f)*(H / W) )); zoomCnt++; }	//Приближение с одинарным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
-				if ((e.mouseWheel.delta ==  2) && (zoomCnt <   9)) {/*view.zoom(0.60f);*/view.reset(FloatRect(0.f, 0.f, W - 100.f, (W - 100.f)*(H / W) )); zoomCnt+=2;}	//Приближение с двойным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
+				// за единицу шага можно брать разность между начальным разрешение и увеличеным или уменьшеным масштабом. Заменять эталон при ресайзе. 
+				if ((zoomCnt > -19)&&(e.mouseWheel.delta == -2)) {/*view.zoom(1.40f);*/view.reset(FloatRect(0.f, 0.f, W + 100.f, (W + 100.f)*(H / W) )); zoomCnt-=2;}	//Отдаление с одинарным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
+				if ((zoomCnt > -20)&&(e.mouseWheel.delta == -1)) {/*view.zoom(1.20f);*/view.reset(FloatRect(0.f, 0.f, W +  50.f, (W +  50.f)*(H / W) )); zoomCnt--; }	//Отдаление с двойным шагом			//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
+				if ((zoomCnt <  10)&&(e.mouseWheel.delta ==  1)) {/*view.zoom(0.80f);*/view.reset(FloatRect(0.f, 0.f, W -  50.f, (W -  50.f)*(H / W) )); zoomCnt++; }	//Приближение с одинарным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
+				if ((zoomCnt <   9)&&(e.mouseWheel.delta ==  2)) {/*view.zoom(0.60f);*/view.reset(FloatRect(0.f, 0.f, W - 100.f, (W - 100.f)*(H / W) )); zoomCnt+=2;}	//Приближение с двойным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
 
 		}  
 	}		
 	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y)); zoomCnt = 0; }
 }
-int main(){	
+int main(){	//pass  8191       id 852111578
 
 	window.setFramerateLimit(60);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
 	window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
@@ -182,8 +182,40 @@ int main(){
 
 	//mob1.InvetoryAdd(43, 34);
 	Clock clock; //создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
+		float winSizeX = 0;
+		float winSizeY = 0;
 
 	while (window.isOpen()) {
+		// переделать на функцию  void resizeAndZoom(int zoomScrollDelta = 0 ){} 
+		if ( (window.getSize().x != winSizeX) || (window.getSize().y != winSizeY) ) {
+			winSizeX = window.getSize().x;
+			winSizeY = window.getSize().y;
+			float rate = 0;
+			float zoomOffSet = 0;
+			float zoomSetX = 0;
+			float zoomSetY = 0;
+			//zoomOffSet = 50.f*zoomCnt;	
+			if (winSizeX > winSizeY) {
+				rate = winSizeY / winSizeX;
+				zoomSetX = winSizeX + zoomOffSet;
+				zoomSetY = zoomSetX*rate;				
+			}
+			else {//if (winSizeX < winSizeY)
+				rate = winSizeX / winSizeY;
+				zoomSetY = winSizeY + zoomOffSet;
+				zoomSetX = zoomSetY*rate;
+			}
+			view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY));
+			drawtxt = zoomSetX;
+			drawtxt2 = zoomSetY;
+			}
+
+
+		
+		
+		
+
+		//view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y));
 
 		eventsOn();	   	
 
