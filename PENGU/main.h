@@ -13,5 +13,5 @@ void menu(RenderWindow &window);
 
 void eventsOn();
 
-void DrawText(int fontSize, float posX, float posY, String setText,
+void DrawText(int fontSize, float posX, float posY, String setText, float value1,
 	Color colorOfText = Color::Black, String FontFamily = "times");

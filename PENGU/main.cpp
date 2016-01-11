@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h> 
 //#include <iostream>
-//#include <windows.h>
+#include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
 #pragma hdrstop	       //указывает что файлы выше общие дл€ всех файлов и не нужндаютс€ в перекомпил€ции, в итоге ускор€ет комипил€цию
@@ -262,10 +262,10 @@ int main(){	//pass  8191       id 852111578
 		mob2.update();
 				
 	    viewMove();
-		char buffer[33];
-		DrawText(18, mob1.ox - 30, mob1.oy - 40, itoa(drawtxt, buffer, 10));
-		DrawText(18, mob1.ox - 30, mob1.oy - 50, itoa(drawtxt2, buffer, 10));
-		DrawText(18, mob1.ox - 30, mob1.oy - 60, itoa(zoomCnt, buffer, 10));
+			
+		DrawText(18, mob1.ox - 30, mob1.oy - 120, "zoomSetX ", drawtxt);
+		DrawText(18, mob1.ox - 30, mob1.oy - 100, "zoomSetY ", drawtxt2);
+		DrawText(18, mob1.ox - 30, mob1.oy - 80, "zoomCnt  ", zoomCnt);
 		window.setView(view);
 		window.display();	   
 
@@ -273,14 +273,16 @@ int main(){	//pass  8191       id 852111578
 		}  
 	return 0;
 }  
-void DrawText(int fontSize, float posX, float posY, String setText,
+void DrawText(int fontSize, float posX, float posY, String setText, float value1,
 	Color colorOfText, String FontFamily) {	                    // DrawText(18, 20, 100, L"¬ыводимый текст");
 	Font font; String FontExt = ".ttf";
 	font.loadFromFile("Fonts/" + FontFamily + FontExt);
 	Text text("", font, fontSize);
 	text.setColor(colorOfText);
 	text.setStyle(sf::Text::Bold);
-	text.setString(setText);
+	std::ostringstream value;
+	value << value1;
+	text.setString(setText+value.str());
 	text.setPosition(posX, posY);
 	window.draw(text);
 }
