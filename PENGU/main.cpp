@@ -115,33 +115,23 @@ int zoomCnt = 0;  // позиция приблежения/отдаления
 void eventsOn(){ 
 	Event e;
 	while (window.pollEvent(e)) { 
-		//if (e.type == Event::Resized) {
-		//	view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y));
-		//}
 		switch (e.type) { 
 			case Event::Closed         : window.close();	break;     	  //  закрываем окно если нажат крестик в углу окна  			 
 			case Event::GainedFocus    : isControl = true;	break;       // получение фокуса включаем управление
 			case Event::LostFocus      : isControl = false; break;      // потеря фокуса отключаем управление  			
 			case Event::MouseWheelMoved: setZoomRate(view.getSize().x, view.getSize().y, e.mouseWheel.delta); break; //e.mouseWheel.delta - на сколько сместилось // e.mouseWheel.x - положение курсора по х курсора в момент смещения //e.mouseWheel.y - положение по у
-				//if ((e.mouseWheel.delta == -2) && (zoomCnt > -10)) { view.reset(FloatRect(0.f, 0.f, e.size.width*0.8f, e.size.height*0.8f)); zoomCnt--; }			if(W>H) 1024/768    =1, 333333333333333		1024/768    =1.3333...	
-				//if ((e.mouseWheel.delta == -1) && (zoomCnt > -10)) { view.reset(FloatRect(0.f, 0.f, e.size.width*0.9f, e.size.height*0.9f)); zoomCnt -= 2; }		if(H>W)  768/1024   =0.75			1024/х	    =0.75		
-				//if ((e.mouseWheel.delta == 1) && (zoomCnt < 10))  { view.reset(FloatRect(0.f, 0.f, e.size.width*1.1f, e.size.height*1.1f)); zoomCnt++; }			if(W>H)	 W/H						 х=	Wn*ratio
-				//if ((e.mouseWheel.delta == 2) && (zoomCnt < 10))  { view.reset(FloatRect(0.f, 0.f, e.size.width*1.2f, e.size.height*1.2f)); zoomCnt += 2; }		if(H>W)	 H/W
+				//if (W>H) 1024/768    =1, 333333333333333		1024/768    =1.3333...	
+				//if (H>W)  768/1024   =0.75			1024/х	    =0.75		
+				//if (W>H)	 W/H						 х=	Wn*ratio
+				//if (H>W)	 H/W
 				
-					 // 800>600		ratio = 800/600 = 1.333333333333333
-					// 1024>768		ratio = 1024/768 = 1.333333333333333
+				// 	     800>600	ratio = 800/600 = 1.333333333333333
+				//	     1024>768	ratio = 1024/768 = 1.333333333333333
 				//     if (W > H) { ratio = W / H; }			  //если увеличиваем ширину допустим на	W=W+100; то пропорциональный размер высоты  H=(W+100)*(W/H);
 				//else if (H > W) { ratio = H / W; }			  //если увеличиваем высоту	допустим на H=H+100; то пропорциональный размер высоты  W=(H+100)*(H/W);
-			     	// 768>1024		ratio = 768/1024 = 0.75
-					// 600>800		ratio = 600/800  = 0.75	
+			    //  	 768>1024	ratio = 768/1024 = 0.75
+				//	     600>800	ratio = 600/800  = 0.75	
 																 
-				//if ((e.mouseWheel.delta == -1) && (zoomCnt > -1)) { view.reset(FloatRect(0.f, 0.f,  1024.f, (( 1024.f)*(H / W) ) ) ); zoomCnt--; }
-				//if ((e.mouseWheel.delta ==  1) && (zoomCnt <  1)) { view.reset(FloatRect(0.f, 0.f,  800.f, ((  800.f)*(H / W) ) ) ); zoomCnt++; }	
-																								  //
-
-
-				// за единицу шага можно брать разность между начальным разрешение и увеличеным или уменьшеным масштабом. Заменять эталон при ресайзе. 
-				
 				//if ((zoomCnt > -19)&&(e.mouseWheel.delta == -2)) {/*view.zoom(1.40f);*/view.reset(FloatRect(0.f, 0.f, W + 100.f, (W + 100.f)*(H / W) )); zoomCnt-=2;}	//Отдаление с одинарным шагом		
 				//if ((zoomCnt > -20)&&(e.mouseWheel.delta == -1)) {/*view.zoom(1.20f);*/view.reset(FloatRect(0.f, 0.f, W +  50.f, (W +  50.f)*(H / W) )); zoomCnt--; }	//Отдаление с двойным шагом			
 				//if ((zoomCnt <  10)&&(e.mouseWheel.delta ==  1)) {/*view.zoom(0.80f);*/view.reset(FloatRect(0.f, 0.f, W -  50.f, (W -  50.f)*(H / W) )); zoomCnt++; }	//Приближение с одинарным шагом		
@@ -150,11 +140,10 @@ void eventsOn(){
 	}		
 	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y)); zoomCnt = 0; }
 }
-
 void setZoomRate(float W, float H, int wheelDelta) {
 	float zoomRate = 50.f * wheelDelta;               //шаг смещени множим на кол-во смещений, прилетают значения целые в диапазон -2..2
-	if ( (zoomCnt > (-20 + wheelDelta)) && (zoomCnt < (10 - wheelDelta)) ) {
-		view.reset(FloatRect(0.f, 0.f, W + zoomRate, (W + zoomRate)*(H / W) ));
+	if ((zoomCnt+wheelDelta >= -20) && (zoomCnt+wheelDelta <= 10) ) {
+		view.reset(FloatRect(0.f, 0.f, W - zoomRate, (W - zoomRate)*(H / W) ));
 	 zoomCnt = zoomCnt + wheelDelta;
 	}
 	drawtxt = W; 
@@ -191,38 +180,26 @@ int main(){
 		float winSizeY = 0;
 
 	while (window.isOpen()) {
-		/* переделать на функцию  void resizeAndZoom(int zoomScrollDelta = 0 ){
+		/*autoResize(); переделать на функцию void autoResize(){
 
 	     } 	 	
-	    */
-		if ( (window.getSize().x != winSizeX) || (window.getSize().y != winSizeY) ) {
-			winSizeX = window.getSize().x;
-			winSizeY = window.getSize().y;
-			
-			float zoomOffSet = 0;
+	    */	
+		winSizeX = window.getSize().x;
+		winSizeY = window.getSize().y;		
+		if ( (winSizeX != winSizeX) || (winSizeY != winSizeY) ) {				
 			float zoomSetX = 0;
 			float zoomSetY = 0;
-			float rate = 0;
-			//zoomScrollDelta==
-			//switch (zoomScrollDelta) {
-			//case -2:  100.f*zoomCnt;	break;
-			//case -1:   50.f*zoomCnt;	break;
-			//case  1:  -50.f*zoomCnt;	break;
-			//case  2: -100.f*zoomCnt;	break;
-			zoomOffSet = 50.f*zoomCnt;                                                //zoomOffSet = 50.f*zoomCnt;				     // zoomOffSet = 50.f*zoomCnt;
-			if (            winSizeX > winSizeY)  {			                            // if (         winSizeX > winSizeY) {			 // if (         winSizeX > winSizeY) { 
-				rate     =  winSizeY / winSizeX;                                        //  	rate     = winSizeY / winSizeX;			 // 	rate     =  winSizeY / winSizeX;
-				zoomSetX =  winSizeX - zoomOffSet;                                      //    zoomSetX = winSizeX + zoomOffSet;			 // 	zoomSetX =  winSizeX + zoomOffSet;
-				zoomSetY = zoomSetX * rate - (zoomOffSet * (winSizeY / winSizeX));      //    zoomSetY = zoomSetX * rate;				 // 	zoomSetY = (zoomSetX + zoomOffSet) * rate;
-			}                                                                           // }											 // }
-			else     /*if (winSizeX <= winSizeY)*/{                                     // else    /*if (winSizeX <= winSizeY)*/{		 // else    /*if (winSizeX <= winSizeY)*/{
-				rate     =  winSizeX / winSizeY;	  		                            //   rate     = winSizeX / winSizeY;			 // 	rate     =  winSizeX / winSizeY;	  		
-				zoomSetY =  winSizeY + zoomOffSet;         	                            //   zoomSetY = winSizeY + zoomOffSet;			 // 	zoomSetY =  winSizeY + zoomOffSet;
-				zoomSetX =  zoomSetY * rate - (zoomOffSet * (winSizeY / winSizeX));     //   zoomSetX = zoomSetY * rate;				 // 	zoomSetX = (zoomSetY + zoomOffSet) * rate;
-			}												                            // }											 // }
-		
-			//пропорция теряется потому что сейчас офсет прибаляется правильно но для старой пропорции, то есть логика добавления правильная, но пропорцию надо пересчитать под новый разме
-
+			float rate = 0;                   		 
+			if (       winSizeX > winSizeY) {	     
+				 rate = winSizeY / winSizeX;		 
+			 zoomSetX = winSizeX;	                 
+			 zoomSetY = zoomSetX * rate;			 
+			}										 
+			else {    
+				 rate = winSizeX / winSizeY;
+			zoomSetX = zoomSetY * rate;
+			zoomSetY = winSizeY;		 
+			}							 
 		view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY));
 		drawtxt = zoomSetX;
 		drawtxt2 = zoomSetY;
@@ -280,8 +257,6 @@ int main(){
 		DrawText(18, mob1.ox - 30, mob1.oy - 80, "zoomCnt  ", zoomCnt);
 		window.setView(view);
 		window.display();	   
-
-
 		}  
 	return 0;
 }  
@@ -293,7 +268,7 @@ void DrawText(int fontSize, float posX, float posY, String setText, float addFlo
 	text.setColor(colorOfText);                        // укаание цвет текста
 	text.setStyle(sf::Text::Bold);                    // укаание жирности (или курсива) текста, по умолчанию обычный стиль
 	std::ostringstream value;                        // создаем поток                                                  (нужно доработать, возможно работу с потоком можно убрать и конвертировать иным спосбом)
-	value << addFloatToText;                                //  полученное значение в поток
+	value << addFloatToText;                        //  полученное значение в поток
 	text.setString(setText+value.str());		   //   потоковое значение конвертируем в строку
 	text.setPosition(posX, posY);				  // указание позиции текста на экране
 	window.draw(text);							 // отрисовываем текст
