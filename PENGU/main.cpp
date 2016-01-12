@@ -1,8 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h> 
 //#include <iostream>
-#include <sstream>
-#include <stdio.h>
+#include <sstream>     //use in DrawText(...){...}
+//#include <stdio.h>
 #include <stdlib.h>
 #pragma hdrstop	       //указывает что файлы выше общие для всех файлов и не нужндаются в перекомпиляции, в итоге ускоряет комипиляцию
 #include "Mob.h"
@@ -122,7 +122,7 @@ void eventsOn(){
 			case Event::Closed         : window.close();	break;     	  //  закрываем окно если нажат крестик в углу окна  			 
 			case Event::GainedFocus    : isControl = true;	break;       // получение фокуса включаем управление
 			case Event::LostFocus      : isControl = false; break;      // потеря фокуса отключаем управление  			
-			case Event::MouseWheelMoved:  
+			case Event::MouseWheelMoved: setZoomRate(view.getSize().x, view.getSize().y, e.mouseWheel.delta); break; //e.mouseWheel.delta - на сколько сместилось // e.mouseWheel.x - положение курсора по х курсора в момент смещения //e.mouseWheel.y - положение по у
 				//if ((e.mouseWheel.delta == -2) && (zoomCnt > -10)) { view.reset(FloatRect(0.f, 0.f, e.size.width*0.8f, e.size.height*0.8f)); zoomCnt--; }			if(W>H) 1024/768    =1, 333333333333333		1024/768    =1.3333...	
 				//if ((e.mouseWheel.delta == -1) && (zoomCnt > -10)) { view.reset(FloatRect(0.f, 0.f, e.size.width*0.9f, e.size.height*0.9f)); zoomCnt -= 2; }		if(H>W)  768/1024   =0.75			1024/х	    =0.75		
 				//if ((e.mouseWheel.delta == 1) && (zoomCnt < 10))  { view.reset(FloatRect(0.f, 0.f, e.size.width*1.1f, e.size.height*1.1f)); zoomCnt++; }			if(W>H)	 W/H						 х=	Wn*ratio
@@ -138,23 +138,28 @@ void eventsOn(){
 				//if ((e.mouseWheel.delta == -1) && (zoomCnt > -1)) { view.reset(FloatRect(0.f, 0.f,  1024.f, (( 1024.f)*(H / W) ) ) ); zoomCnt--; }
 				//if ((e.mouseWheel.delta ==  1) && (zoomCnt <  1)) { view.reset(FloatRect(0.f, 0.f,  800.f, ((  800.f)*(H / W) ) ) ); zoomCnt++; }	
 																								  //
-				//e.mouseWheel.delta   - на сколько сместилось
-				//e.mouseWheel.x ; 	   - положение пр х курсора в момент смещения
-				//e.mouseWheel.x 	   - положение по у курсора в момент смещения
 
-				float W = view.getSize().x;  // получаем размер камеры   
-				float H = view.getSize().y; //  по х и по у             
-				drawtxt = W; 
-				drawtxt2 = H;
+
 				// за единицу шага можно брать разность между начальным разрешение и увеличеным или уменьшеным масштабом. Заменять эталон при ресайзе. 
-				if ((zoomCnt > -19)&&(e.mouseWheel.delta == -2)) {/*view.zoom(1.40f);*/view.reset(FloatRect(0.f, 0.f, W + 100.f, (W + 100.f)*(H / W) )); zoomCnt-=2;}	//Отдаление с одинарным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
-				if ((zoomCnt > -20)&&(e.mouseWheel.delta == -1)) {/*view.zoom(1.20f);*/view.reset(FloatRect(0.f, 0.f, W +  50.f, (W +  50.f)*(H / W) )); zoomCnt--; }	//Отдаление с двойным шагом			//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
-				if ((zoomCnt <  10)&&(e.mouseWheel.delta ==  1)) {/*view.zoom(0.80f);*/view.reset(FloatRect(0.f, 0.f, W -  50.f, (W -  50.f)*(H / W) )); zoomCnt++; }	//Приближение с одинарным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
-				if ((zoomCnt <   9)&&(e.mouseWheel.delta ==  2)) {/*view.zoom(0.60f);*/view.reset(FloatRect(0.f, 0.f, W - 100.f, (W - 100.f)*(H / W) )); zoomCnt+=2;}	//Приближение с двойным шагом		//ЕСТЬ СЕРЬЕЗНЫЙ БАГ с пропорциями: при развороте на весь экнан с широкими пропорциями, после зума все перкашивается
-
+				
+				//if ((zoomCnt > -19)&&(e.mouseWheel.delta == -2)) {/*view.zoom(1.40f);*/view.reset(FloatRect(0.f, 0.f, W + 100.f, (W + 100.f)*(H / W) )); zoomCnt-=2;}	//Отдаление с одинарным шагом		
+				//if ((zoomCnt > -20)&&(e.mouseWheel.delta == -1)) {/*view.zoom(1.20f);*/view.reset(FloatRect(0.f, 0.f, W +  50.f, (W +  50.f)*(H / W) )); zoomCnt--; }	//Отдаление с двойным шагом			
+				//if ((zoomCnt <  10)&&(e.mouseWheel.delta ==  1)) {/*view.zoom(0.80f);*/view.reset(FloatRect(0.f, 0.f, W -  50.f, (W -  50.f)*(H / W) )); zoomCnt++; }	//Приближение с одинарным шагом		
+				//if ((zoomCnt <   9)&&(e.mouseWheel.delta ==  2)) {/*view.zoom(0.60f);*/view.reset(FloatRect(0.f, 0.f, W - 100.f, (W - 100.f)*(H / W) )); zoomCnt+=2;}	//Приближение с двойным шагом	
 		}  
 	}		
 	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y)); zoomCnt = 0; }
+}
+
+void setZoomRate(float W, float H, int wheelDelta) {
+	float zoomRate = 50.f * wheelDelta;               //шаг смещени множим на кол-во смещений, прилетают значения целые в диапазон -2..2
+	if ( (zoomCnt > (-20 + wheelDelta)) && (zoomCnt < (10 - wheelDelta)) ) {
+		view.reset(FloatRect(0.f, 0.f, W + zoomRate, (W + zoomRate)*(H / W) ));
+	 zoomCnt = zoomCnt + wheelDelta;
+	}
+	drawtxt = W; 
+	drawtxt2 = H;	
+//	view.reset(FloatRect(0.f, 0.f, W + 100.f, (W + 100.f)*(H / W)));
 }
 int main(){
 
@@ -204,29 +209,25 @@ int main(){
 			//case -1:   50.f*zoomCnt;	break;
 			//case  1:  -50.f*zoomCnt;	break;
 			//case  2: -100.f*zoomCnt;	break;
-			//zoomOffSet = 50.f*zoomCnt;                                                  //zoomOffSet = 50.f*zoomCnt;				     // zoomOffSet = 50.f*zoomCnt;
-			//         													                 
-			if (           winSizeX > winSizeY) {			                            // if (         winSizeX > winSizeY) {			 // if (         winSizeX > winSizeY) { 
+			zoomOffSet = 50.f*zoomCnt;                                                //zoomOffSet = 50.f*zoomCnt;				     // zoomOffSet = 50.f*zoomCnt;
+			if (            winSizeX > winSizeY)  {			                            // if (         winSizeX > winSizeY) {			 // if (         winSizeX > winSizeY) { 
 				rate     =  winSizeY / winSizeX;                                        //  	rate     = winSizeY / winSizeX;			 // 	rate     =  winSizeY / winSizeX;
-				zoomSetX =  winSizeX + zoomOffSet;                                      //    zoomSetX = winSizeX + zoomOffSet;			 // 	zoomSetX =  winSizeX + zoomOffSet;
-				zoomSetY = zoomSetX * rate + (zoomOffSet * (winSizeY / winSizeX));      //    zoomSetY = zoomSetX * rate;				 // 	zoomSetY = (zoomSetX + zoomOffSet) * rate;
+				zoomSetX =  winSizeX - zoomOffSet;                                      //    zoomSetX = winSizeX + zoomOffSet;			 // 	zoomSetX =  winSizeX + zoomOffSet;
+				zoomSetY = zoomSetX * rate - (zoomOffSet * (winSizeY / winSizeX));      //    zoomSetY = zoomSetX * rate;				 // 	zoomSetY = (zoomSetX + zoomOffSet) * rate;
 			}                                                                           // }											 // }
-			else    /*if (winSizeX <= winSizeY)*/{                                      // else    /*if (winSizeX <= winSizeY)*/{		 // else    /*if (winSizeX <= winSizeY)*/{
+			else     /*if (winSizeX <= winSizeY)*/{                                     // else    /*if (winSizeX <= winSizeY)*/{		 // else    /*if (winSizeX <= winSizeY)*/{
 				rate     =  winSizeX / winSizeY;	  		                            //   rate     = winSizeX / winSizeY;			 // 	rate     =  winSizeX / winSizeY;	  		
 				zoomSetY =  winSizeY + zoomOffSet;         	                            //   zoomSetY = winSizeY + zoomOffSet;			 // 	zoomSetY =  winSizeY + zoomOffSet;
-				zoomSetX =  zoomSetY * rate + (zoomOffSet * (winSizeY / winSizeX));     //   zoomSetX = zoomSetY * rate;				 // 	zoomSetX = (zoomSetY + zoomOffSet) * rate;
+				zoomSetX =  zoomSetY * rate - (zoomOffSet * (winSizeY / winSizeX));     //   zoomSetX = zoomSetY * rate;				 // 	zoomSetX = (zoomSetY + zoomOffSet) * rate;
 			}												                            // }											 // }
-			view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY));
-			drawtxt = zoomSetX;
-			drawtxt2 = zoomSetY;
-			}
-
-
 		
-		
-		
+			//пропорция теряется потому что сейчас офсет прибаляется правильно но для старой пропорции, то есть логика добавления правильная, но пропорцию надо пересчитать под новый разме
 
-		//view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y));
+		view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY));
+		drawtxt = zoomSetX;
+		drawtxt2 = zoomSetY;
+		}
+		//view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y));           (W + 100.f)*(H / W) 
 
 		eventsOn();	   	
 
@@ -284,16 +285,16 @@ int main(){
 		}  
 	return 0;
 }  
-void DrawText(int fontSize, float posX, float posY, String setText, float value1,
+void DrawText(int fontSize, float posX, float posY, String setText, float addFloatToText,
 	Color colorOfText, String FontFamily) {	                    // DrawText(18, 20, 100, L"Выводимый текст");
 	Font font; String FontExt = ".ttf";
-	font.loadFromFile("Fonts/" + FontFamily + FontExt);
-	Text text("", font, fontSize);
-	text.setColor(colorOfText);
-	text.setStyle(sf::Text::Bold);
-	std::ostringstream value;
-	value << value1;
-	text.setString(setText+value.str());
-	text.setPosition(posX, posY);
-	window.draw(text);
+	font.loadFromFile("Fonts/" + FontFamily + FontExt);  // по полученому пути загружаем шрифт
+	Text text("", font, fontSize);                      // по полученому пути загружаем шрифт
+	text.setColor(colorOfText);                        // укаание цвет текста
+	text.setStyle(sf::Text::Bold);                    // укаание жирности (или курсива) текста, по умолчанию обычный стиль
+	std::ostringstream value;                        // создаем поток                                                  (нужно доработать, возможно работу с потоком можно убрать и конвертировать иным спосбом)
+	value << addFloatToText;                                //  полученное значение в поток
+	text.setString(setText+value.str());		   //   потоковое значение конвертируем в строку
+	text.setPosition(posX, posY);				  // указание позиции текста на экране
+	window.draw(text);							 // отрисовываем текст
 }
