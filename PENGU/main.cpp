@@ -92,6 +92,7 @@ void menu(RenderWindow &window) {	//стоит вынести создание текстур в отдельный к
 	menu1.setPosition(100.f, 30.f);		              // установка позиции,
 	menu2.setPosition(100.f, 90.f);		             // для пунктов меню
 	while (window.isOpen()){
+
 		eventsOn();
 		window.clear(Color(129,181,221));  // отчистка окна под меню	 
 		menu1.setColor(Color::White);
@@ -120,22 +121,6 @@ void eventsOn(){
 			case Event::GainedFocus    : isControl = true;	break;       // получение фокуса включаем управление
 			case Event::LostFocus      : isControl = false; break;      // потеря фокуса отключаем управление  			
 			case Event::MouseWheelMoved: setZoomRate(view.getSize().x, view.getSize().y, e.mouseWheel.delta); break; //e.mouseWheel.delta - на сколько сместилось // e.mouseWheel.x - положение курсора по х курсора в момент смещения //e.mouseWheel.y - положение по у
-				//if (W>H) 1024/768    =1, 333333333333333		1024/768    =1.3333...	
-				//if (H>W)  768/1024   =0.75			1024/х	    =0.75		
-				//if (W>H)	 W/H						 х=	Wn*ratio
-				//if (H>W)	 H/W
-				
-				// 	     800>600	ratio = 800/600 = 1.333333333333333
-				//	     1024>768	ratio = 1024/768 = 1.333333333333333
-				//     if (W > H) { ratio = W / H; }			  //если увеличиваем ширину допустим на	W=W+100; то пропорциональный размер высоты  H=(W+100)*(W/H);
-				//else if (H > W) { ratio = H / W; }			  //если увеличиваем высоту	допустим на H=H+100; то пропорциональный размер высоты  W=(H+100)*(H/W);
-			    //  	 768>1024	ratio = 768/1024 = 0.75
-				//	     600>800	ratio = 600/800  = 0.75	
-																 
-				//if ((zoomCnt > -19)&&(e.mouseWheel.delta == -2)) {/*view.zoom(1.40f);*/view.reset(FloatRect(0.f, 0.f, W + 100.f, (W + 100.f)*(H / W) )); zoomCnt-=2;}	//Отдаление с одинарным шагом		
-				//if ((zoomCnt > -20)&&(e.mouseWheel.delta == -1)) {/*view.zoom(1.20f);*/view.reset(FloatRect(0.f, 0.f, W +  50.f, (W +  50.f)*(H / W) )); zoomCnt--; }	//Отдаление с двойным шагом			
-				//if ((zoomCnt <  10)&&(e.mouseWheel.delta ==  1)) {/*view.zoom(0.80f);*/view.reset(FloatRect(0.f, 0.f, W -  50.f, (W -  50.f)*(H / W) )); zoomCnt++; }	//Приближение с одинарным шагом		
-				//if ((zoomCnt <   9)&&(e.mouseWheel.delta ==  2)) {/*view.zoom(0.60f);*/view.reset(FloatRect(0.f, 0.f, W - 100.f, (W - 100.f)*(H / W) )); zoomCnt+=2;}	//Приближение с двойным шагом	
 		}  
 	}		
 	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y)); zoomCnt = 0; }
@@ -148,10 +133,31 @@ void setZoomRate(float W, float H, int wheelDelta) {
 	}
 	drawtxt = W; 
 	drawtxt2 = H;	
-//	view.reset(FloatRect(0.f, 0.f, W + 100.f, (W + 100.f)*(H / W)));
+}  
+float winSizeX=0,winSizeY=0;
+void autoResize() { //надо дописать ограничение минимальный размер окна 640х480  например таким способом, и должен быть способ задавать без вектора	window.setSize(sf::Vector2u(640, 480));	   
+	if ((window.getSize().x != winSizeX) || (window.getSize().y != winSizeY)) {					 
+		winSizeX = window.getSize().x;											  
+		winSizeY = window.getSize().y;
+		float zoomSetX = 0, zoomSetY = 0;
+		if (winSizeX > winSizeY) {
+			zoomSetX = winSizeX;
+			zoomSetY = zoomSetX * winSizeY / winSizeX;
+		}
+		else {
+			zoomSetY = winSizeY;
+			zoomSetX = zoomSetY * winSizeX / winSizeY;
+		}
+		view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY)); 		
+		int zoomDelta = zoomCnt; 
+		zoomCnt = 0;
+		setZoomRate(zoomSetX, zoomSetY, zoomDelta);
+		
+		drawtxt = zoomSetX;				   
+		drawtxt2 = zoomSetY;			  
+	}
 }
-int main(){
-
+int main(){		   
 	window.setFramerateLimit(60);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
 	window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
 	view.reset(FloatRect(0.f, 0.f, DefWinSizeX, DefWinSizeY));// устанавливаем начальный размер камеры 800х600px   
@@ -179,35 +185,11 @@ int main(){
 		float winSizeX = 0;
 		float winSizeY = 0;
 
-	while (window.isOpen()) {
-		/*autoResize(); переделать на функцию void autoResize(){
-
-	     } 	 	
-	    */	
-		winSizeX = window.getSize().x;
-		winSizeY = window.getSize().y;		
-		if ( (winSizeX != winSizeX) || (winSizeY != winSizeY) ) {				
-			float zoomSetX = 0;
-			float zoomSetY = 0;
-			float rate = 0;                   		 
-			if (       winSizeX > winSizeY) {	     
-				 rate = winSizeY / winSizeX;		 
-			 zoomSetX = winSizeX;	                 
-			 zoomSetY = zoomSetX * rate;			 
-			}										 
-			else {    
-				 rate = winSizeX / winSizeY;
-			zoomSetX = zoomSetY * rate;
-			zoomSetY = winSizeY;		 
-			}							 
-		view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY));
-		drawtxt = zoomSetX;
-		drawtxt2 = zoomSetY;
-		}
-		//view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y));           (W + 100.f)*(H / W) 
-
+		while (window.isOpen()) { 	
+ 
 		eventsOn();	   	
-
+		autoResize();  
+		
 		float time = clock.getElapsedTime().asMicroseconds(); //запись прошедшего времени в микросекундах
 	    clock.restart(); //перезагружает время
 		time = time / 800; //скорость игры	
