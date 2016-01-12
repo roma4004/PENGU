@@ -156,7 +156,7 @@ void eventsOn(){
 	}		
 	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y)); zoomCnt = 0; }
 }
-int main(){	//pass  8191       id 852111578
+int main(){
 
 	window.setFramerateLimit(60);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
 	window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
@@ -186,25 +186,36 @@ int main(){	//pass  8191       id 852111578
 		float winSizeY = 0;
 
 	while (window.isOpen()) {
-		// переделать на функцию  void resizeAndZoom(int zoomScrollDelta = 0 ){} 
+		/* переделать на функцию  void resizeAndZoom(int zoomScrollDelta = 0 ){
+
+	     } 	 	
+	    */
 		if ( (window.getSize().x != winSizeX) || (window.getSize().y != winSizeY) ) {
 			winSizeX = window.getSize().x;
 			winSizeY = window.getSize().y;
-			float rate = 0;
+			
 			float zoomOffSet = 0;
 			float zoomSetX = 0;
 			float zoomSetY = 0;
-			//zoomOffSet = 50.f*zoomCnt;	
-			if (winSizeX > winSizeY) {
-				rate = winSizeY / winSizeX;
-				zoomSetX = winSizeX + zoomOffSet;
-				zoomSetY = zoomSetX*rate;				
-			}
-			else {//if (winSizeX < winSizeY)
-				rate = winSizeX / winSizeY;
-				zoomSetY = winSizeY + zoomOffSet;
-				zoomSetX = zoomSetY*rate;
-			}
+			float rate = 0;
+			//zoomScrollDelta==
+			//switch (zoomScrollDelta) {
+			//case -2:  100.f*zoomCnt;	break;
+			//case -1:   50.f*zoomCnt;	break;
+			//case  1:  -50.f*zoomCnt;	break;
+			//case  2: -100.f*zoomCnt;	break;
+			//zoomOffSet = 50.f*zoomCnt;                                                  //zoomOffSet = 50.f*zoomCnt;				     // zoomOffSet = 50.f*zoomCnt;
+			//         													                 
+			if (           winSizeX > winSizeY) {			                            // if (         winSizeX > winSizeY) {			 // if (         winSizeX > winSizeY) { 
+				rate     =  winSizeY / winSizeX;                                        //  	rate     = winSizeY / winSizeX;			 // 	rate     =  winSizeY / winSizeX;
+				zoomSetX =  winSizeX + zoomOffSet;                                      //    zoomSetX = winSizeX + zoomOffSet;			 // 	zoomSetX =  winSizeX + zoomOffSet;
+				zoomSetY = zoomSetX * rate + (zoomOffSet * (winSizeY / winSizeX));      //    zoomSetY = zoomSetX * rate;				 // 	zoomSetY = (zoomSetX + zoomOffSet) * rate;
+			}                                                                           // }											 // }
+			else    /*if (winSizeX <= winSizeY)*/{                                      // else    /*if (winSizeX <= winSizeY)*/{		 // else    /*if (winSizeX <= winSizeY)*/{
+				rate     =  winSizeX / winSizeY;	  		                            //   rate     = winSizeX / winSizeY;			 // 	rate     =  winSizeX / winSizeY;	  		
+				zoomSetY =  winSizeY + zoomOffSet;         	                            //   zoomSetY = winSizeY + zoomOffSet;			 // 	zoomSetY =  winSizeY + zoomOffSet;
+				zoomSetX =  zoomSetY * rate + (zoomOffSet * (winSizeY / winSizeX));     //   zoomSetX = zoomSetY * rate;				 // 	zoomSetX = (zoomSetY + zoomOffSet) * rate;
+			}												                            // }											 // }
 			view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY));
 			drawtxt = zoomSetX;
 			drawtxt2 = zoomSetY;
