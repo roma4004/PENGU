@@ -4,6 +4,7 @@
 #include <sstream>     //use in DrawText(...){...}
 //#include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #pragma hdrstop	       //указывает что файлы выше общие для всех файлов и не нужндаются в перекомпиляции, в итоге ускоряет комипиляцию
 #include "Mob.h"
 #include "map.h"
@@ -153,38 +154,35 @@ void eventsOn(){
 	}		
 	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y)); zoomCnt = 0; }
 }
+int maxZoomTop = 10;
+int maxZoomBottom = -20;
 void setZoomRate(float W, float H, int wheelDelta) {
 	float zoomRate = 50.f * wheelDelta;               //шаг смещени множим на кол-во смещений, прилетают значения целые в диапазон -2..2
-	if ((zoomCnt+wheelDelta >= -20) && (zoomCnt+wheelDelta <= 10) ) {
-		view.reset(FloatRect(0.f, 0.f, W - zoomRate, (W - zoomRate)*(H / W) ));
-	 zoomCnt = zoomCnt + wheelDelta;
+	if ((zoomCnt + wheelDelta >= maxZoomBottom) && (zoomCnt + wheelDelta <= maxZoomTop)) {
+		view.reset(FloatRect(0.f, 0.f, W - zoomRate, (W - zoomRate)*(H / W)));
+		zoomCnt = zoomCnt + wheelDelta;
 	}
-	drawtxt = W; 
-	drawtxt2 = H;	
-}  
-float winSizeX=0,winSizeY=0;
+	drawtxt = W;
+	drawtxt2 = H;
+}
+float winSizeX = 0, winSizeY = 0;	 
 
 void autoResize() { //надо дописать ограничение минимальный размер окна 640х480  например таким способом, и должен быть способ задавать без вектора	window.setSize(sf::Vector2u(640, 480));	   
-	if ((window.getSize().x <= 680) || (window.getSize().y <= 480)) window.setSize(Vector2u(640, 480)); // порешал
+	if (window.getSize().x <= 320) window.setSize(Vector2u(320, window.getSize().y));    // maxZoomTop = 5;
+	if (window.getSize().y <= 240) window.setSize(Vector2u(window.getSize().x, 240)); //maxZoomBottom = 5;
+
 	if ((window.getSize().x != winSizeX) || (window.getSize().y != winSizeY)) {
-		winSizeX = window.getSize().x;
+		winSizeX = window.getSize().x;							//получаем рамеры окна, для вычисления соотношения сторон			  
 		winSizeY = window.getSize().y;
-		float zoomSetX = 0, zoomSetY = 0;
-		if (winSizeX > winSizeY) {
-			zoomSetX = winSizeX;
-			zoomSetY = zoomSetX * winSizeY / winSizeX;
-		}
-		else {
-			zoomSetY = winSizeY;
-			zoomSetX = zoomSetY * winSizeX / winSizeY;
-		}
-		view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY));
+
+		view.reset(FloatRect(0.f, 0.f, winSizeX, winSizeY));
+
 		int zoomDelta = zoomCnt;
 		zoomCnt = 0;
-		setZoomRate(zoomSetX, zoomSetY, zoomDelta);
+		setZoomRate(winSizeX, winSizeY, zoomDelta);
 
-		drawtxt = zoomSetX;
-		drawtxt2 = zoomSetY;
+		drawtxt = winSizeX;
+		drawtxt2 = winSizeY;
 	}
 }
 int main(){		   
@@ -220,6 +218,9 @@ int main(){
 	//Clock clock; //создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
 		float winSizeX = 0;
 		float winSizeY = 0;
+
+		int innertCntX = 1;
+		int innertCntY = 1;
 
 		while (window.isOpen()) { 	
  
@@ -271,9 +272,38 @@ int main(){
 	//	if ((Keyboard::isKeyPressed(Keyboard::Left) ) && (isControl)) { mob1.move(4); }
 	//	if ((Keyboard::isKeyPressed(Keyboard::Up)   ) && (isControl)) { mob1.move(2); }
 	//	if ((Keyboard::isKeyPressed(Keyboard::Down) ) && (isControl)) { mob1.move(1); }	  
-		
-		
-		setCamCenter(mob1.ox, mob1.oy);
+
+
+
+
+	//иннерционность камеры
+	//if (mob1.ox > view.getCenter().x > -100) {}
+	//if (mob1.oy > view.getCenter().y > -100) {}                                                      float
+	//if (mob1.ox < view.getCenter().x > -100) {}													   innertCnt, 
+	//if (mob1.oy < view.getCenter().y > -100) {}                                                      param = 3.14159265; fractpart = modf(param, &intpart);	printf("%f = %f + %f \n", param, intpart, fractpart);
+		float innertCnt = 1;
+		//if (mob1.ox >= view.getCenter().x) {innertCntX = mob1.ox - view.getCenter().x;}
+		//if (mob1.oy >= view.getCenter().y) {innertCntY = mob1.oy - view.getCenter().y;}
+		//if (mob1.ox <= view.getCenter().x) {innertCntX = view.getCenter().x - mob1.ox;}
+		//if (mob1.oy <= view.getCenter().y) {innertCntY = view.getCenter().y - mob1.oy;}
+		//плавное центрирование                                                                                                          надо отловить случай когда там целое число , допустим обрезать
+		if (mob1.ox >= view.getCenter().x + innertCntX) { setCamCenter(view.getCenter().x + innertCntX, view.getCenter().y); }
+		if (mob1.oy >= view.getCenter().y + innertCntY) { setCamCenter(view.getCenter().x, view.getCenter().y + innertCntY); }
+		if (mob1.ox <= view.getCenter().x - innertCntX) { setCamCenter(view.getCenter().x - innertCntX, view.getCenter().y); }
+		if (mob1.oy <= view.getCenter().y - innertCntY) { setCamCenter(view.getCenter().x, view.getCenter().y - innertCntY); }
+		innertCnt = innertCnt *1.5;
+		innertCntX = floor(innertCnt);
+		innertCnt = innertCnt *1.5;
+		innertCntY = floor(innertCnt);
+
+
+
+		//innertCnt += 0.9f;
+		//сброс инерции
+		if (mob1.ox == view.getCenter().x) innertCnt = 1;
+		if (mob1.oy == view.getCenter().y) innertCnt = 1;
+
+		//setCamCenter(mob1.ox, mob1.oy);
 		
 		mob1.update();
 
@@ -282,9 +312,16 @@ int main(){
 				
 	    viewMove();
 			
+		//DrawText(18, mob1.ox - 30, mob1.oy - 120, "zoomSetX ", drawtxt);
+		//DrawText(18, mob1.ox - 30, mob1.oy - 100, "zoomSetY ", drawtxt2);
+		//DrawText(18, mob1.ox - 30, mob1.oy - 80,  "zoomCnt  ", zoomCnt);
+
 		DrawText(18, mob1.ox - 30, mob1.oy - 120, "zoomSetX ", drawtxt);
 		DrawText(18, mob1.ox - 30, mob1.oy - 100, "zoomSetY ", drawtxt2);
 		DrawText(18, mob1.ox - 30, mob1.oy - 80, "zoomCnt  ", zoomCnt);
+		DrawText(18, mob1.ox - 30, mob1.oy - 140, "mob1.ox  ", mob1.ox);
+		DrawText(18, mob1.ox - 30, mob1.oy - 160, "mob1.oy  ", mob1.oy);
+
 		window.setView(view);
 		window.display();	   
 		}  
