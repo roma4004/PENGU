@@ -158,9 +158,11 @@ void autoResize() { //надо дописать ограничение минимальный размер окна 640х480 
 	}
 }
 int main(){		   
-	window.setFramerateLimit(60);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
-	window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
-	view.reset(FloatRect(0.f, 0.f, DefWinSizeX, DefWinSizeY));// устанавливаем начальный размер камеры 800х600px   
+	window.setFramerateLimit(30);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
+	window.setVerticalSyncEnabled(false);		   //  так же должно управляться с настроек	
+	view.reset(FloatRect(0.f, 0.f, DefWinSizeX, DefWinSizeY));// устанавливаем начальный размер камеры  
+	//virtual void sf::Window::onResize()			возможно получится избежать использования ивентов еще и здесь 
+   // virtual void sf::RenderWindow::onResize()		возможно получится избежать использования ивентов еще и здесь 
 
 	menu(window);  	
 
