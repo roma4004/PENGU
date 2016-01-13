@@ -9,9 +9,10 @@
 #include "map.h"
 #include "view.h"
 #include "main.h"
-using namespace sf;	 
+using namespace sf;	
 void CreateRandWorld() {
-	int OfMountains[30][2], start; // всего 30 гор по 2 параметра 0-координа по X, 1- высота горы
+	srand(time(0));
+	int OfMountains[30][2], start,StartString; // всего 30 гор по 2 параметра 0-координа по X, 1- высота горы
 
 	for (int i = HEIGHT_MAP - 1; i > HEIGHT_MAP - 5; i--) {// заливаем снизу текстурами 4 ряда блоков максимальной ширины от нижней точки полоски
 		for (int j = 0; j < WIDTH_MAP; j++)
@@ -25,8 +26,7 @@ void CreateRandWorld() {
 			TileMap[j][WIDTH_MAP - 1] = '3'; // полоска справа
 		}
 	}
-	srand(time(0));
-	OfMountains[0][0] = - 10;                  // принудительная гора с левой части карты,
+	OfMountains[0][0] = -10;                  // принудительная гора с левой части карты,
 	OfMountains[0][1] = (rand() % 12) + 10;   //  и рандом высоты для этой горы.
 	OfMountains[1][0] = WIDTH_MAP - 10;      // принудительная гора с правой части карты, 
 	OfMountains[1][1] = (rand() % 12) + 10; //  и рандом высоты для этой горы.
@@ -35,27 +35,55 @@ void CreateRandWorld() {
 		OfMountains[i][1] = (rand() % 12) + 10; // поправка высоты исключает горы высотой меньше поправки
 	}															                 // отрисовываем гору																  
 	for (int count = 0; count < 30; count++)                                    // проходимся по каждой горе
-		for (int h = 0; h <= OfMountains[count][1]-4; h++)                     // рисуем гору полосками начиная с самой нижней полоски и заканчивая (высота-4) чтобы исключить острый конец горы и добавить плавности (count переключает горы)
+		for (int h = 0; h <= OfMountains[count][1] - 4; h++)  {                   // рисуем гору полосками начиная с самой нижней полоски и заканчивая (высота-4) чтобы исключить острый конец горы и добавить плавности (count переключает горы)
+			StartString = h + rand() % 2 ;									// переменная для смещения старта отрисовки чтобы не было 100% ёлочки 
 			for (int k = 0; k <= (OfMountains[count][1] * 2 - (h * 2)); k++) {// самое интересное каждая полоска должна закончиться раньше в прогрессии.
-				start = OfMountains[count][0] + h + k;                       // считаем начало прорисовки полоски для каждой полоски смещаем старт на 1 блок вправа что была ступенька
-				if (start >= WIDTH_MAP) start = WIDTH_MAP - 1;           // проверяем выход за край справа	  					
-				if (start <= 0        ) start = 1;	                    // проверяем выход за край слева 												 
-				TileMap[(HEIGHT_MAP - 5) - h][start] = '3'; // собственно заливаем 3-йками
-			} 	
+				start = OfMountains[count][0] + StartString + k;                       // считаем начало прорисовки полоски для каждой полоски смещаем старт на 1 блок вправа что была ступенька
+				if (start >= WIDTH_MAP-1) start = WIDTH_MAP - 2;           // проверяем выход за край справа	  					
+				if (start <= 0) start = 1;	                    // проверяем выход за край слева 												 
+				TileMap[(HEIGHT_MAP - 4) - h][start] = '2'; // собственно заливаем 2-йками
+			}
+}
+	for (int i = 0; i < HEIGHT_MAP; i++)													//делаю верхушки с травой
+		for (int j = 0; j < WIDTH_MAP; j++) {
+			if ((TileMap[i][j] == '2') && (TileMap[i-1][j] == ' ')) { TileMap[i][j] = '1'; } // если я нашёл элемент горы "2" и над ним пусто значит это верхушка
+		}
+
 	for (int i = 0; i < HEIGHT_MAP; i++)							   //создаем мир согласно сгенерированной карте
 		for (int j = 0; j < WIDTH_MAP; j++) {
-			if (TileMap[i][j] == '3') setObj( (j * 32.f), (i * 32.f) );
+			if (TileMap[i][j] == '3') setObj( (j * 32.f), (i * 32.f), "EdgeWorld");
+			if (TileMap[i][j] == '2') setObj((j * 32.f), (i * 32.f), "Ground");
+			if (TileMap[i][j] == '1') setObj((j * 32.f), (i * 32.f), "TopGround");
 		}
 }
-void setObj(float x, float y) {
-			b2PolygonShape gr;
-			gr.SetAsBox(16.f / SCALE, 16.f / SCALE);
-			b2BodyDef bdef;
-			bdef.position.Set(x / SCALE, y / SCALE);
-			b2Body *body = World.CreateBody(&bdef);
-			body->CreateFixture(&gr, 1.f);
-			body->SetUserData("ground");
-			//b2Draw DrawSegment;  
+void setObj(float x, float y, String type) {
+	if (type == "EdgeWorld") {
+		b2PolygonShape gr;
+		gr.SetAsBox(16.f / SCALE, 16.f / SCALE);
+		b2BodyDef bdef;
+		bdef.position.Set(x / SCALE, y / SCALE);
+		b2Body *body = World.CreateBody(&bdef);
+		body->CreateFixture(&gr, 1.f);
+		body->SetUserData("EdgeWorld");
+	}
+	if (type == "Ground") {
+		b2PolygonShape gr;
+		gr.SetAsBox(16.f / SCALE, 16.f / SCALE);
+		b2BodyDef bdef;
+		bdef.position.Set(x / SCALE, y / SCALE);
+		b2Body *body = World.CreateBody(&bdef);
+		body->CreateFixture(&gr, 1.f);
+		body->SetUserData("Ground");
+	}
+	if (type == "TopGround") {
+		b2PolygonShape gr;
+		gr.SetAsBox(16.f / SCALE, 16.f / SCALE);
+		b2BodyDef bdef;
+		bdef.position.Set(x / SCALE, y / SCALE);
+		b2Body *body = World.CreateBody(&bdef);
+		body->CreateFixture(&gr, 1.f);
+		body->SetUserData("TopGround");
+	}
 }	 
 void setBody(float x, float y, String type) {
 	if (type == "disk") {
@@ -135,9 +163,11 @@ void setZoomRate(float W, float H, int wheelDelta) {
 	drawtxt2 = H;	
 }  
 float winSizeX=0,winSizeY=0;
+
 void autoResize() { //надо дописать ограничение минимальный размер окна 640х480  например таким способом, и должен быть способ задавать без вектора	window.setSize(sf::Vector2u(640, 480));	   
-	if ((window.getSize().x != winSizeX) || (window.getSize().y != winSizeY)) {					 
-		winSizeX = window.getSize().x;											  
+	if ((window.getSize().x <= 680) || (window.getSize().y <= 480)) window.setSize(Vector2u(640, 480)); // порешал
+	if ((window.getSize().x != winSizeX) || (window.getSize().y != winSizeY)) {
+		winSizeX = window.getSize().x;
 		winSizeY = window.getSize().y;
 		float zoomSetX = 0, zoomSetY = 0;
 		if (winSizeX > winSizeY) {
@@ -148,13 +178,13 @@ void autoResize() { //надо дописать ограничение минимальный размер окна 640х480 
 			zoomSetY = winSizeY;
 			zoomSetX = zoomSetY * winSizeX / winSizeY;
 		}
-		view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY)); 		
-		int zoomDelta = zoomCnt; 
+		view.reset(FloatRect(0.f, 0.f, zoomSetX, zoomSetY));
+		int zoomDelta = zoomCnt;
 		zoomCnt = 0;
 		setZoomRate(zoomSetX, zoomSetY, zoomDelta);
-		
-		drawtxt = zoomSetX;				   
-		drawtxt2 = zoomSetY;			  
+
+		drawtxt = zoomSetX;
+		drawtxt2 = zoomSetY;
 	}
 }
 int main(){		   
@@ -164,26 +194,30 @@ int main(){
 	//virtual void sf::Window::onResize()			возможно получится избежать использования ивентов еще и здесь 
    // virtual void sf::RenderWindow::onResize()		возможно получится избежать использования ивентов еще и здесь 
 
-	menu(window);  	
-
+	//menu(window);  	
+	/////////////////////Кусок текстур потом функцию надо сделать ////////////////////////
 	Texture TextureMap;
 	TextureMap.loadFromFile("images/tilemap.png");
-	Sprite sMap(TextureMap), sPlayer(TextureMap), sBox(TextureMap), sDisk(TextureMap);
+	Sprite sEdgeWorld(TextureMap), sPlayer(TextureMap), sBox(TextureMap), sDisk(TextureMap),sGround(TextureMap),sTopGround(TextureMap);
 
-	sMap.setTextureRect (IntRect(32, 0, 32, 32)); 
+	sEdgeWorld.setTextureRect (IntRect(32, 0, 32, 32));
 	sBox.setTextureRect (IntRect(0,  0, 32, 32));
 	sDisk.setTextureRect(IntRect(64, 0, 32, 32));
-	sMap.setOrigin (16.f, 16.f);
+	sGround.setTextureRect(IntRect(32, 64, 32, 32));
+	sTopGround.setTextureRect(IntRect(32, 32, 32, 32));
+	sGround.setOrigin(16.f, 16.f);
+	sTopGround.setOrigin(16.f, 16.f);
+	sEdgeWorld.setOrigin (16.f, 16.f);
 	sBox.setOrigin (16.f, 16.f);
 	sDisk.setOrigin(16.f, 16.f);
-	
+	//////////////////////////////////////////////
 	CreateRandWorld();			 //создаем мир	
 
 	Mob mob1(800.f, 50.f);	   //создаем первого моба управляемого
 	Mob mob2(900.f, 50.f);	   //создаем второго моба не управляемого
 
 	//mob1.InvetoryAdd(43, 34);
-	Clock clock; //создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
+	//Clock clock; //создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
 		float winSizeX = 0;
 		float winSizeY = 0;
 
@@ -192,21 +226,14 @@ int main(){
 		eventsOn();	   	
 		autoResize();  
 		
-		float time = clock.getElapsedTime().asMicroseconds(); //запись прошедшего времени в микросекундах
-	    clock.restart(); //перезагружает время
-		time = time / 800; //скорость игры	
+		//float time = clock.getElapsedTime().asMicroseconds(); //запись прошедшего времени в микросекундах
+	    //clock.restart(); //перезагружает время
+		//time = time / 800; //скорость игры	
 
 		World.Step( (1.f / 60.f) , 8, 3);
-		window.clear(Color::White);
+		window.clear(Color(181,228,240,1));
 
-		mob1.move();  
-		mob2.move();
-	//	if ((Keyboard::isKeyPressed(Keyboard::Right)) && (isControl)) { mob1.move(3); }
-	//	if ((Keyboard::isKeyPressed(Keyboard::Left) ) && (isControl)) { mob1.move(4); }
-	//	if ((Keyboard::isKeyPressed(Keyboard::Up)   ) && (isControl)) { mob1.move(2); }
-	//	if ((Keyboard::isKeyPressed(Keyboard::Down) ) && (isControl)) { mob1.move(1); }	  
-		
-		for (b2Body* it = World.GetBodyList(); it != 0; it = it->GetNext()) {	
+		for (b2Body* it = World.GetBodyList(); it != 0; it = it->GetNext()) {
 			if (it->GetUserData() == "box") {
 				b2Vec2 pos = it->GetPosition();
 				float angle = it->GetAngle();
@@ -217,16 +244,35 @@ int main(){
 			if (it->GetUserData() == "disk") {
 				b2Vec2 pos = it->GetPosition();
 				float angle = it->GetAngle();
-				sDisk.setPosition( (pos.x*SCALE), (pos.y*SCALE) );
-				sDisk.setRotation( (angle*DEG) );
+				sDisk.setPosition((pos.x*SCALE), (pos.y*SCALE));
+				sDisk.setRotation((angle*DEG));
 				window.draw(sDisk);
 			}
-			if (it->GetUserData() == "ground") {
+			if (it->GetUserData() == "EdgeWorld") {						
+				b2Vec2 pos = it->GetPosition();							
+				sEdgeWorld.setPosition((pos.x*SCALE), (pos.y*SCALE));	
+				window.draw(sEdgeWorld);								
+			}															
+			if (it->GetUserData() == "Ground") {
 				b2Vec2 pos = it->GetPosition();
-				sMap.setPosition( (pos.x*SCALE), (pos.y*SCALE) );
-				window.draw(sMap);
+				sGround.setPosition((pos.x*SCALE), (pos.y*SCALE));
+				window.draw(sGround);
 			}
-		}	
+			if (it->GetUserData() == "TopGround") {
+				b2Vec2 pos = it->GetPosition();
+				sTopGround.setPosition((pos.x*SCALE), (pos.y*SCALE));
+				window.draw(sTopGround);
+			}
+		}
+
+		mob1.move();  
+		mob2.move();
+	//	if ((Keyboard::isKeyPressed(Keyboard::Right)) && (isControl)) { mob1.move(3); }
+	//	if ((Keyboard::isKeyPressed(Keyboard::Left) ) && (isControl)) { mob1.move(4); }
+	//	if ((Keyboard::isKeyPressed(Keyboard::Up)   ) && (isControl)) { mob1.move(2); }
+	//	if ((Keyboard::isKeyPressed(Keyboard::Down) ) && (isControl)) { mob1.move(1); }	  
+		
+		
 		setCamCenter(mob1.ox, mob1.oy);
 		
 		mob1.update();
