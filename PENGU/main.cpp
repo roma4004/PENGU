@@ -159,7 +159,7 @@ int maxZoomBottom = -20;
 void setZoomRate(float W, float H, int wheelDelta) {
 	float zoomRate = 50.f * wheelDelta;               //шаг смещени множим на кол-во смещений, прилетают значения целые в диапазон -2..2
 	if ((zoomCnt + wheelDelta >= maxZoomBottom) && (zoomCnt + wheelDelta <= maxZoomTop)) {
-		view.reset(FloatRect(0.f, 0.f, W - zoomRate, (W - zoomRate)*(H / W)));
+		view.reset(FloatRect(0.f,0.f, W - zoomRate, (W - zoomRate)*(H / W)));
 		zoomCnt = zoomCnt + wheelDelta;
 	}
 	drawtxt = W;
@@ -186,9 +186,9 @@ void autoResize() { //надо дописать ограничение минимальный размер окна 640х480 
 	}
 }
 int main(){		   
-	window.setFramerateLimit(30);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
-	window.setVerticalSyncEnabled(false);		   //  так же должно управляться с настроек	
-	view.reset(FloatRect(0.f, 0.f, DefWinSizeX, DefWinSizeY));// устанавливаем начальный размер камеры  
+	//window.setFramerateLimit(60);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
+	//window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
+	//view.reset(FloatRect(0.f, 0.f, DefWinSizeX, DefWinSizeY));// устанавливаем начальный размер камеры  
 	//virtual void sf::Window::onResize()			возможно получится избежать использования ивентов еще и здесь 
    // virtual void sf::RenderWindow::onResize()		возможно получится избежать использования ивентов еще и здесь 
 
@@ -219,8 +219,11 @@ int main(){
 		float winSizeX = 0;
 		float winSizeY = 0;
 
-		int innertCntX = 1;
-		int innertCntY = 1;
+		float innertCntX = 2;
+		float innertCntY = 2;
+
+		float innertIncreaseX = 2;
+		float innertIncreaseY = 2;
 
 		while (window.isOpen()) { 	
  
@@ -281,29 +284,30 @@ int main(){
 	//if (mob1.oy > view.getCenter().y > -100) {}                                                      float
 	//if (mob1.ox < view.getCenter().x > -100) {}													   innertCnt, 
 	//if (mob1.oy < view.getCenter().y > -100) {}                                                      param = 3.14159265; fractpart = modf(param, &intpart);	printf("%f = %f + %f \n", param, intpart, fractpart);
-		float innertCnt = 1;
+
+		
 		//if (mob1.ox >= view.getCenter().x) {innertCntX = mob1.ox - view.getCenter().x;}
 		//if (mob1.oy >= view.getCenter().y) {innertCntY = mob1.oy - view.getCenter().y;}
 		//if (mob1.ox <= view.getCenter().x) {innertCntX = view.getCenter().x - mob1.ox;}
 		//if (mob1.oy <= view.getCenter().y) {innertCntY = view.getCenter().y - mob1.oy;}
 		//плавное центрирование                                                                                                          надо отловить случай когда там целое число , допустим обрезать
-		if (mob1.ox >= view.getCenter().x + innertCntX) { setCamCenter(view.getCenter().x + innertCntX, view.getCenter().y); }
-		if (mob1.oy >= view.getCenter().y + innertCntY) { setCamCenter(view.getCenter().x, view.getCenter().y + innertCntY); }
-		if (mob1.ox <= view.getCenter().x - innertCntX) { setCamCenter(view.getCenter().x - innertCntX, view.getCenter().y); }
-		if (mob1.oy <= view.getCenter().y - innertCntY) { setCamCenter(view.getCenter().x, view.getCenter().y - innertCntY); }
-		innertCnt = innertCnt *1.5;
-		innertCntX = floor(innertCnt);
-		innertCnt = innertCnt *1.5;
-		innertCntY = floor(innertCnt);
+		///if (mob1.ox >= view.getCenter().x + innertCntX) { setCamCenter(view.getCenter().x + innertCntX, view.getCenter().y); }
+		///if (mob1.oy >= view.getCenter().y + innertCntY) { setCamCenter(view.getCenter().x             , view.getCenter().y + innertCntY); }
+		///if (mob1.ox <= view.getCenter().x - innertCntX) { setCamCenter(view.getCenter().x - innertCntX, view.getCenter().y); }
+		///if (mob1.oy <= view.getCenter().y - innertCntY) { setCamCenter(view.getCenter().x             , view.getCenter().y - innertCntY); }
+		///innertIncreaseX = innertCntX *2.5;
+		///innertCntX = 2 * 2.5;//floor(innertIncreaseX);
+		///innertIncreaseY = innertCntY *2.5;
+		///innertCntY = 2 * 2.5;//floor(innertIncreaseY);
 
 
 
 		//innertCnt += 0.9f;
 		//сброс инерции
-		if (mob1.ox == view.getCenter().x) innertCnt = 1;
-		if (mob1.oy == view.getCenter().y) innertCnt = 1;
+		//if (mob1.ox == view.getCenter().x) innertCntX = 2;
+		//if (mob1.oy == view.getCenter().y) innertCntY = 2;
 
-		//setCamCenter(mob1.ox, mob1.oy);
+		setCamCenter(mob1.ox, mob1.oy);
 		
 		mob1.update();
 
