@@ -12,7 +12,7 @@
 #include "main.h"
 using namespace sf;	
 void CreateRandWorld() {
-	srand(time(0));
+	srand(int(time(NULL)));
 	int OfMountains[30][2], start,StartString; // всего 30 гор по 2 параметра 0-координа по X, 1- высота горы
 
 	for (int i = HEIGHT_MAP - 1; i > HEIGHT_MAP - 5; i--) {// заливаем снизу текстурами 4 ряда блоков максимальной ширины от нижней точки полоски
@@ -191,7 +191,11 @@ int main(){
 	//view.reset(FloatRect(0.f, 0.f, DefWinSizeX, DefWinSizeY));// устанавливаем начальный размер камеры  
 	//virtual void sf::Window::onResize()			возможно получится избежать использования ивентов еще и здесь 
    // virtual void sf::RenderWindow::onResize()		возможно получится избежать использования ивентов еще и здесь 
-
+	Font font; font.loadFromFile("Fonts/times.ttf");  // по полученому пути загружаем шрифт
+	Text text("", font, 18);                      // по полученому пути загружаем шрифт
+	text.setColor(Color::Black);                        // укаание цвет текста
+	text.setStyle(sf::Text::Bold);                    // укаание жирности (или курсива) текста, по умолчанию обычный стиль
+	
 	//menu(window);  	
 	/////////////////////Кусок текстур потом функцию надо сделать ////////////////////////
 	Texture TextureMap;
@@ -314,33 +318,58 @@ int main(){
 		mob2.patrul(600,1800);
 		mob2.update();
 				
-	    viewMove();
-			
-		//DrawText(18, mob1.ox - 30, mob1.oy - 120, "zoomSetX ", drawtxt);
+	    viewMove();	
+		std::ostringstream textRenderBuff;	 
+		textRenderBuff << drawtxt;
+		text.setString("zoomSetX " + textRenderBuff.str());		   //   потоковое значение конвертируем в строку
+		text.setPosition(mob1.ox - 30, mob1.oy - 120);				  // указание позиции текста на экране
+		window.draw(text);					        		 // отрисовываем текст
+
+		std::ostringstream textRenderBuff2;
+		textRenderBuff2 << drawtxt2;
+		text.setString("zoomSetY " + textRenderBuff2.str());
+		text.setPosition(mob1.ox - 30, mob1.oy - 100);
+		window.draw(text);
+
+		std::ostringstream textRenderBuff3;	 
+		textRenderBuff3 << zoomCnt;
+		text.setString("zoomCnt " + textRenderBuff3.str());
+		text.setPosition(mob1.ox - 30, mob1.oy - 80);
+		window.draw(text);
+
+		std::ostringstream textRenderBuff4;
+		textRenderBuff4 << mob1.ox;
+		text.setString("mob1.ox " + textRenderBuff4.str());
+		text.setPosition(mob1.ox - 30, mob1.oy - 140);
+		window.draw(text);
+		
+		std::ostringstream textRenderBuff5;
+		textRenderBuff5 << mob1.ox;
+		text.setString("mob1.oy " + textRenderBuff5.str());
+		text.setPosition(mob1.oy - 30, mob1.oy - 160);
+		window.draw(text);
+		//DrawText(18, mob1.ox - 30, mob1.oy - 120, "zoomSetX ", drawtxt);	  
 		//DrawText(18, mob1.ox - 30, mob1.oy - 100, "zoomSetY ", drawtxt2);
 		//DrawText(18, mob1.ox - 30, mob1.oy - 80,  "zoomCnt  ", zoomCnt);
 
-		DrawText(18, mob1.ox - 30, mob1.oy - 120, "zoomSetX ", drawtxt);
-		DrawText(18, mob1.ox - 30, mob1.oy - 100, "zoomSetY ", drawtxt2);
-		DrawText(18, mob1.ox - 30, mob1.oy - 80, "zoomCnt  ", zoomCnt);
-		DrawText(18, mob1.ox - 30, mob1.oy - 140, "mob1.ox  ", mob1.ox);
-		DrawText(18, mob1.ox - 30, mob1.oy - 160, "mob1.oy  ", mob1.oy);
+		//DrawText(18, mob1.ox - 30, mob1.oy - 120, "zoomSetX ", drawtxt);
+		//DrawText(18, mob1.ox - 30, mob1.oy - 100, "zoomSetY ", drawtxt2);
+		//DrawText(18, mob1.ox - 30, mob1.oy - 80, "zoomCnt  ", zoomCnt);
+		//DrawText(18, mob1.ox - 30, mob1.oy - 140, "mob1.ox  ", mob1.ox);
+		//DrawText(18, mob1.ox - 30, mob1.oy - 160, "mob1.oy  ", mob1.oy);
 
 		window.setView(view);
 		window.display();	   
+
 		}  
 	return 0;
 }  
 void DrawText(int fontSize, float posX, float posY, String setText, float addFloatToText,
 	Color colorOfText, String FontFamily) {	                    // DrawText(18, 20, 100, L"Выводимый текст");
-	Font font; String FontExt = ".ttf";
-	font.loadFromFile("Fonts/" + FontFamily + FontExt);  // по полученому пути загружаем шрифт
-	Text text("", font, fontSize);                      // по полученому пути загружаем шрифт
-	text.setColor(colorOfText);                        // укаание цвет текста
-	text.setStyle(sf::Text::Bold);                    // укаание жирности (или курсива) текста, по умолчанию обычный стиль
-	std::ostringstream value;                        // создаем поток                                                  (нужно доработать, возможно работу с потоком можно убрать и конвертировать иным спосбом)
-	value << addFloatToText;                        //  полученное значение в поток
-	text.setString(setText+value.str());		   //   потоковое значение конвертируем в строку
-	text.setPosition(posX, posY);				  // указание позиции текста на экране
-	window.draw(text);							 // отрисовываем текст
+
+//	std::ostringstream value;                        // создаем поток                                                  (нужно доработать, возможно работу с потоком можно убрать и конвертировать иным спосбом)
+//	value << addFloatToText;                        //  полученное значение в поток
+//	text.setString(setText+value.str());		   //   потоковое значение конвертируем в строку
+//	text.setPosition(posX, posY);				  // указание позиции текста на экране
+//	window.draw(text);							 // отрисовываем текст
 }
