@@ -14,6 +14,3 @@ void menu(RenderWindow &window);
 void eventsOn();
 
 void setZoomRate(float W, float H, int wheelDelta);
-
-void DrawText(int fontSize, float posX, float posY, String setText, float addFloatToText,
-	Color colorOfText = Color::Black, String FontFamily = "times");

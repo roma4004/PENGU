@@ -148,7 +148,8 @@ void eventsOn(){
 		switch (e.type) { 
 			case Event::Closed         : window.close();	break;     	  //  закрываем окно если нажат крестик в углу окна  			 
 			case Event::GainedFocus    : isControl = true;	break;       // получение фокуса включаем управление
-			case Event::LostFocus      : isControl = false; break;      // потеря фокуса отключаем управление  			
+			case Event::LostFocus      : isControl = false; break;      // потеря фокуса отключаем управление 
+			case Event::MouseEntered   : isControl = true;  break;
 			case Event::MouseWheelMoved: setZoomRate(view.getSize().x, view.getSize().y, e.mouseWheel.delta); break; //e.mouseWheel.delta - на сколько сместилось // e.mouseWheel.x - положение курсора по х курсора в момент смещения //e.mouseWheel.y - положение по у
 		}  
 	}		
@@ -187,10 +188,10 @@ void autoResize() { //надо дописать ограничение минимальный размер окна 640х480 
 }
 int main(){		   
 	//window.setFramerateLimit(60);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
-	//window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
+	window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
 	//view.reset(FloatRect(0.f, 0.f, DefWinSizeX, DefWinSizeY));// устанавливаем начальный размер камеры  
 	//virtual void sf::Window::onResize()			возможно получится избежать использования ивентов еще и здесь 
-   // virtual void sf::RenderWindow::onResize()		возможно получится избежать использования ивентов еще и здесь 
+    // virtual void sf::RenderWindow::onResize()		возможно получится избежать использования ивентов еще и здесь 
 	Font font; font.loadFromFile("Fonts/times.ttf");  // по полученому пути загружаем шрифт
 	Text text("", font, 18);                      // по полученому пути загружаем шрифт
 	text.setColor(Color::Black);                        // укаание цвет текста
@@ -229,6 +230,8 @@ int main(){
 		float innertIncreaseX = 2;
 		float innertIncreaseY = 2;
 
+		std::ostringstream textRenderBuff;
+
 		while (window.isOpen()) { 	
  
 		eventsOn();	   	
@@ -238,7 +241,7 @@ int main(){
 	    //clock.restart(); //перезагружает время
 		//time = time / 800; //скорость игры	
 
-		World.Step( (1.f / 60.f) , 8, 3);
+		World.Step( (1.f /60.f) , 8, 3);
 		window.clear(Color(181,228,240,1));
 
 		for (b2Body* it = World.GetBodyList(); it != 0; it = it->GetNext()) {
@@ -271,17 +274,13 @@ int main(){
 				sTopGround.setPosition((pos.x*SCALE), (pos.y*SCALE));
 				window.draw(sTopGround);
 			}
-		}
-
+		}	  
 		mob1.move();  
 		mob2.move();
 	//	if ((Keyboard::isKeyPressed(Keyboard::Right)) && (isControl)) { mob1.move(3); }
 	//	if ((Keyboard::isKeyPressed(Keyboard::Left) ) && (isControl)) { mob1.move(4); }
 	//	if ((Keyboard::isKeyPressed(Keyboard::Up)   ) && (isControl)) { mob1.move(2); }
-	//	if ((Keyboard::isKeyPressed(Keyboard::Down) ) && (isControl)) { mob1.move(1); }	  
-
-
-
+	//	if ((Keyboard::isKeyPressed(Keyboard::Down) ) && (isControl)) { mob1.move(1); }	  	  
 
 	//иннерционность камеры
 	//if (mob1.ox > view.getCenter().x > -100) {}
@@ -302,9 +301,7 @@ int main(){
 		///innertIncreaseX = innertCntX *2.5;
 		///innertCntX = 2 * 2.5;//floor(innertIncreaseX);
 		///innertIncreaseY = innertCntY *2.5;
-		///innertCntY = 2 * 2.5;//floor(innertIncreaseY);
-
-
+		///innertCntY = 2 * 2.5;//floor(innertIncreaseY);	 
 
 		//innertCnt += 0.9f;
 		//сброс инерции
@@ -319,57 +316,19 @@ int main(){
 		mob2.update();
 				
 	    viewMove();	
-		std::ostringstream textRenderBuff;	 
-		textRenderBuff << drawtxt;
-		text.setString("zoomSetX " + textRenderBuff.str());		   //   потоковое значение конвертируем в строку
-		text.setPosition(mob1.ox - 30, mob1.oy - 120);				  // указание позиции текста на экране
-		window.draw(text);					        		 // отрисовываем текст
-
-		std::ostringstream textRenderBuff2;
-		textRenderBuff2 << drawtxt2;
-		text.setString("zoomSetY " + textRenderBuff2.str());
-		text.setPosition(mob1.ox - 30, mob1.oy - 100);
-		window.draw(text);
-
-		std::ostringstream textRenderBuff3;	 
-		textRenderBuff3 << zoomCnt;
-		text.setString("zoomCnt " + textRenderBuff3.str());
-		text.setPosition(mob1.ox - 30, mob1.oy - 80);
-		window.draw(text);
-
-		std::ostringstream textRenderBuff4;
-		textRenderBuff4 << mob1.ox;
-		text.setString("mob1.ox " + textRenderBuff4.str());
-		text.setPosition(mob1.ox - 30, mob1.oy - 140);
-		window.draw(text);
 		
-		std::ostringstream textRenderBuff5;
-		textRenderBuff5 << mob1.ox;
-		text.setString("mob1.oy " + textRenderBuff5.str());
-		text.setPosition(mob1.oy - 30, mob1.oy - 160);
-		window.draw(text);
-		//DrawText(18, mob1.ox - 30, mob1.oy - 120, "zoomSetX ", drawtxt);	  
-		//DrawText(18, mob1.ox - 30, mob1.oy - 100, "zoomSetY ", drawtxt2);
-		//DrawText(18, mob1.ox - 30, mob1.oy - 80,  "zoomCnt  ", zoomCnt);
-
-		//DrawText(18, mob1.ox - 30, mob1.oy - 120, "zoomSetX ", drawtxt);
-		//DrawText(18, mob1.ox - 30, mob1.oy - 100, "zoomSetY ", drawtxt2);
-		//DrawText(18, mob1.ox - 30, mob1.oy - 80, "zoomCnt  ", zoomCnt);
-		//DrawText(18, mob1.ox - 30, mob1.oy - 140, "mob1.ox  ", mob1.ox);
-		//DrawText(18, mob1.ox - 30, mob1.oy - 160, "mob1.oy  ", mob1.oy);
+		textRenderBuff.str("");								    // чистим поток
+		textRenderBuff << "zoomSetX " << drawtxt  << "\n" 	   // и поочередно заносим отладочную информацию
+			           << "zoomSetY " << drawtxt2 << "\n"	
+			           << "zoomCnt "  << zoomCnt  << "\n" 
+			           << "mob1.ox "  << mob1.ox  << "\n"
+			           << "mob1.oy "  << mob1.oy  << "\n";
+		text.setString(textRenderBuff.str());		    // потоковое значение конвертируем в строку
+		text.setPosition(mob1.ox - 30, mob1.oy - 160); // указание позиции текста на экране
+		window.draw(text);					          // отрисовываем текст
 
 		window.setView(view);
-		window.display();	   
-
+		window.display();	
 		}  
 	return 0;
-}  
-void DrawText(int fontSize, float posX, float posY, String setText, float addFloatToText,
-	Color colorOfText, String FontFamily) {	                    // DrawText(18, 20, 100, L"Выводимый текст");
-
-//	std::ostringstream value;                        // создаем поток                                                  (нужно доработать, возможно работу с потоком можно убрать и конвертировать иным спосбом)
-//	value << addFloatToText;                        //  полученное значение в поток
-//	text.setString(setText+value.str());		   //   потоковое значение конвертируем в строку
-//	text.setPosition(posX, posY);				  // указание позиции текста на экране
-//	window.draw(text);							 // отрисовываем текст
-}
+} 
