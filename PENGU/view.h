@@ -14,4 +14,4 @@ void viewMove() {
 		if (Keyboard::isKeyPressed(Keyboard::S)) view.move( 0.f,  8.f);	 
 		}
 	}
-}
+}  		 

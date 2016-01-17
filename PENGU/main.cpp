@@ -1,10 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h> 
-//#include <iostream>
 #include <sstream>     //use in DrawText(...){...}
-//#include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #pragma hdrstop	       //указывает что файлы выше общие для всех файлов и не нужндаются в перекомпиляции, в итоге ускоряет комипиляцию
 #include "Mob.h"
 #include "map.h"
@@ -12,8 +9,8 @@
 #include "main.h"
 using namespace sf;	
 void CreateRandWorld() {
-	srand(int(time(NULL)));
-	int OfMountains[30][2], start,StartString; // всего 30 гор по 2 параметра 0-координа по X, 1- высота горы
+	srand(static_cast<unsigned int>(time(NULL)));
+	int OfMountains[30][2], start, StartString; // всего 30 гор по 2 параметра 0-координа по X, 1- высота горы
 
 	for (int i = HEIGHT_MAP - 1; i > HEIGHT_MAP - 5; i--) {// заливаем снизу текстурами 4 ряда блоков максимальной ширины от нижней точки полоски
 		for (int j = 0; j < WIDTH_MAP; j++)
@@ -138,10 +135,7 @@ void menu(RenderWindow &window) {	//стоит вынести создание текстур в отдельный к
 	window.draw(menu2);	   //  пунктов меню
 	window.display();	  //   и их отображение
 	}
-}
-int drawtxt = 0;    // переменные что потом 
-int drawtxt2 = 0;  //  выводяться как текст
-int zoomCnt = 0;  // позиция приблежения/отдаления
+}	
 void eventsOn(){ 
 	Event e;
 	while (window.pollEvent(e)) { 
@@ -153,10 +147,12 @@ void eventsOn(){
 			case Event::MouseWheelMoved: setZoomRate(view.getSize().x, view.getSize().y, e.mouseWheel.delta); break; //e.mouseWheel.delta - на сколько сместилось // e.mouseWheel.x - положение курсора по х курсора в момент смещения //e.mouseWheel.y - положение по у
 		}  
 	}		
-	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { view.reset(FloatRect(0.f, 0.f, window.getSize().x, window.getSize().y)); zoomCnt = 0; }
-}
-int maxZoomTop = 10;
-int maxZoomBottom = -20;
+	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { 
+		view.reset(FloatRect(0.f, 0.f, 
+			static_cast<float>(window.getSize().x), 
+			static_cast<float>(window.getSize().y) ));
+		zoomCnt = 0; }
+}	   
 void setZoomRate(float W, float H, int wheelDelta) {
 	float zoomRate = 50.f * wheelDelta;               //шаг смещени множим на кол-во смещений, прилетают значения целые в диапазон -2..2
 	if ((zoomCnt + wheelDelta >= maxZoomBottom) && (zoomCnt + wheelDelta <= maxZoomTop)) {
@@ -165,16 +161,14 @@ void setZoomRate(float W, float H, int wheelDelta) {
 	}
 	drawtxt = W;
 	drawtxt2 = H;
-}
-float winSizeX = 0, winSizeY = 0;	 
-
+}	
 void autoResize() { //надо дописать ограничение минимальный размер окна 640х480  например таким способом, и должен быть способ задавать без вектора	window.setSize(sf::Vector2u(640, 480));	   
 	if (window.getSize().x <= 320) window.setSize(Vector2u(320, window.getSize().y));    // maxZoomTop = 5;
 	if (window.getSize().y <= 240) window.setSize(Vector2u(window.getSize().x, 240)); //maxZoomBottom = 5;
 
 	if ((window.getSize().x != winSizeX) || (window.getSize().y != winSizeY)) {
-		winSizeX = window.getSize().x;							//получаем рамеры окна, для вычисления соотношения сторон			  
-		winSizeY = window.getSize().y;
+		winSizeX = static_cast<float>( window.getSize().x);							//получаем рамеры окна, для вычисления соотношения сторон			  
+		winSizeY = static_cast<float>( window.getSize().y);
 
 		view.reset(FloatRect(0.f, 0.f, winSizeX, winSizeY));
 
@@ -187,7 +181,7 @@ void autoResize() { //надо дописать ограничение минимальный размер окна 640х480 
 	}
 }
 int main(){		   
-	//window.setFramerateLimit(60);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
+	//window.setFramerateLimit(optimaFPS);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
 	window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
 	//view.reset(FloatRect(0.f, 0.f, DefWinSizeX, DefWinSizeY));// устанавливаем начальный размер камеры  
 	//virtual void sf::Window::onResize()			возможно получится избежать использования ивентов еще и здесь 
@@ -221,8 +215,6 @@ int main(){
 
 	//mob1.InvetoryAdd(43, 34);
 	//Clock clock; //создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
-		float winSizeX = 0;
-		float winSizeY = 0;
 
 		float innertCntX = 2;
 		float innertCntY = 2;
@@ -241,7 +233,7 @@ int main(){
 	    //clock.restart(); //перезагружает время
 		//time = time / 800; //скорость игры	
 
-		World.Step( (1.f /60.f) , 8, 3);
+		World.Step( (1.f / optimaFPS), 8, 3);
 		window.clear(Color(181,228,240,1));
 
 		for (b2Body* it = World.GetBodyList(); it != 0; it = it->GetNext()) {
@@ -322,7 +314,7 @@ int main(){
 			           << "zoomSetY " << drawtxt2 << "\n"	
 			           << "zoomCnt "  << zoomCnt  << "\n" 
 			           << "mob1.ox "  << mob1.ox  << "\n"
-			           << "mob1.oy "  << mob1.oy  << "\n";
+					   << "mob1.oy "  << mob1.oy  << "\n";
 		text.setString(textRenderBuff.str());		    // потоковое значение конвертируем в строку
 		text.setPosition(mob1.ox - 30, mob1.oy - 160); // указание позиции текста на экране
 		window.draw(text);					          // отрисовываем текст
