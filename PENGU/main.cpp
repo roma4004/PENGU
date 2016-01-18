@@ -1,13 +1,20 @@
-#include <SFML/Graphics.hpp>
-#include <Box2D/Box2D.h> 
 #include <sstream>     //use in DrawText(...){...}
 #include <stdlib.h>
 #pragma hdrstop	       //указывает что файлы выше общие дл€ всех файлов и не нужндаютс€ в перекомпил€ции, в итоге ускор€ет комипил€цию
+//#include "MainObject.h"
 #include "Mob.h"
 #include "map.h"
 #include "view.h"
 #include "main.h"
-using namespace sf;	
+using namespace sf;
+bool isControl = true;	
+int DefWinSizeX = 1024;
+int DefWinSizeY = 768;
+const float SCALE = 30.f;
+const float DEG = 57.29577f;   
+b2Vec2 Gravity(0.f, 9.8f);
+b2World World(Gravity);
+RenderWindow window(VideoMode(DefWinSizeX, DefWinSizeY, 32), "PENGU"); 
 void CreateRandWorld() {
 	srand(static_cast<unsigned int>(time(NULL)));
 	int OfMountains[30][2], start, StartString; // всего 30 гор по 2 параметра 0-координа по X, 1- высота горы
@@ -16,7 +23,6 @@ void CreateRandWorld() {
 		for (int j = 0; j < WIDTH_MAP; j++)
 			TileMap[i][j] = '3';
 	}
-	// обводка карты
 	for (int j = 0; j < WIDTH_MAP; j++) {        // обводим сверху, слева и справа
 		TileMap[0][j] = '3';                    // полоска сверху 
 		if (j < (HEIGHT_MAP - 1)) {            // так как карта пр€моугольна€ надо провер€ть чтоб j не выходила за высоту иначе будет ошибка
@@ -45,11 +51,10 @@ void CreateRandWorld() {
 	for (int i = 0; i < HEIGHT_MAP; i++)													//делаю верхушки с травой
 		for (int j = 0; j < WIDTH_MAP; j++) {
 			if ((TileMap[i][j] == '2') && (TileMap[i-1][j] == ' ')) { TileMap[i][j] = '1'; } // если € нашЄл элемент горы "2" и над ним пусто значит это верхушка
-		}
-
+		}			 
 	for (int i = 0; i < HEIGHT_MAP; i++)							   //создаем мир согласно сгенерированной карте
 		for (int j = 0; j < WIDTH_MAP; j++) {
-			if (TileMap[i][j] == '3') setObj( (j * 32.f), (i * 32.f), "EdgeWorld");
+			if (TileMap[i][j] == '3') setObj((j * 32.f), (i * 32.f), "EdgeWorld");
 			if (TileMap[i][j] == '2') setObj((j * 32.f), (i * 32.f), "Ground");
 			if (TileMap[i][j] == '1') setObj((j * 32.f), (i * 32.f), "TopGround");
 		}
@@ -208,10 +213,10 @@ int main(){
 	sBox.setOrigin (16.f, 16.f);
 	sDisk.setOrigin(16.f, 16.f);
 	//////////////////////////////////////////////
-	CreateRandWorld();			 //создаем мир	
+	CreateRandWorld();			 //создаем мир
 
-	Mob mob1(800.f, 50.f);	   //создаем первого моба управл€емого
-	Mob mob2(900.f, 50.f);	   //создаем второго моба не управл€емого
+	Mob mob1(800.f, 50.f, SCALE, World, IntRect(0, 32, 32, 64));	   //создаем первого моба управл€емого
+	Mob mob2(900.f, 50.f, SCALE, World, IntRect(0, 32, 32, 64));	   //создаем второго моба не управл€емого
 
 	//mob1.InvetoryAdd(43, 34);
 	//Clock clock; //создаем переменную времени, т.о. прив€зка ко времени(а не загруженности/мощности процессора).
@@ -267,8 +272,8 @@ int main(){
 				window.draw(sTopGround);
 			}
 		}	  
-		mob1.move();  
-		mob2.move();
+		mob1.move(isControl);
+		mob2.move(isControl);
 	//	if ((Keyboard::isKeyPressed(Keyboard::Right)) && (isControl)) { mob1.move(3); }
 	//	if ((Keyboard::isKeyPressed(Keyboard::Left) ) && (isControl)) { mob1.move(4); }
 	//	if ((Keyboard::isKeyPressed(Keyboard::Up)   ) && (isControl)) { mob1.move(2); }
@@ -302,12 +307,12 @@ int main(){
 
 		setCamCenter(mob1.ox, mob1.oy);
 		
-		mob1.update();
+		mob1.update(window, SCALE, DEG);
 
-		mob2.patrul(600,1800);
-		mob2.update();
+		mob2.patrul(600, 1800, SCALE);
+		mob2.update(window, SCALE, DEG);
 				
-	    viewMove();	
+	    viewMove(window);
 		
 		textRenderBuff.str("");								    // чистим поток
 		textRenderBuff << "zoomSetX " << drawtxt  << "\n" 	   // и поочередно заносим отладочную информацию

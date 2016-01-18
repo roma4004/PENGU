@@ -1,5 +1,4 @@
 #pragma once
-using namespace sf;
 
 void CreateRandWorld();
 

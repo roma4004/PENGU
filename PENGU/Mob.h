@@ -1,14 +1,7 @@
-#pragma once
-using namespace sf;
-int DefWinSizeX = 1024;
-int DefWinSizeY = 768;
-RenderWindow window(VideoMode(DefWinSizeX, DefWinSizeY, 32), "PENGU");
-const float SCALE = 30.f;
-const float DEG = 57.29577f;
-bool isControl = true;
-b2Vec2 Gravity(0.f, 9.8f);
-b2World World(Gravity);	
-
+#pragma once 
+#include <SFML/Graphics.hpp>
+#include <Box2D/Box2D.h> 
+using namespace sf;		 
 /// todo: сделать инвентарь в виде списка, в который потом заносить айди предмета и кол-во
 		// int invMaxItem=10;		   
 		// int invLimitEachItem=100;  	 
@@ -26,9 +19,11 @@ b2World World(Gravity);
 	/// \objects like settlers...
 	////////////////////////////////////////////////////////////
 class Mob{ 
-	private:
-		bool isSelect;			     //mark which indicate mouse selected or not mob object
-		int invCntElem = 0;			 //total counter of element in the inventory
+	private:			
+		bool nav = true; 
+		float mobAngle;
+		bool isSelect;			       //mark which indicate mouse selected or not mob object
+		int invCntElem = 0;		      //total counter of element in the inventory
 		int invMaxItem = 10;         //max element of the inventory
 		int invLimitEachItem = 10;  //max limit of each element in the inventory
 		//int **ptr_inventoryMas = (int **)new int[invMaxItem][2];   		  
@@ -38,153 +33,25 @@ class Mob{
 
 		unsigned __int8 health;		//0..255	<stil not used> 
 		unsigned __int8 armore;		//0..255	<stil not used>
-		
+
 		Texture mobTexture;
-		Sprite mobSprite;
-		float mobAngle;
+		Sprite mobSprite;		
 		b2Vec2 position;		
 		b2Body *mpeople;
-		bool nav = true;
+		b2PolygonShape PolygonShape;
+		b2BodyDef BodyDef;
+		b2FixtureDef FixtureDef;  		  
 	public:
 		float ox, oy; 
-		Mob(float x, float y);	
+		Mob(float x, float y, float SCALE, b2World &World, IntRect rectangl);
 	    ~Mob();	
 
 		void InvetoryAdd(int idElem, int cntElem);
 		void InvetoryDropAllElem();
 		int InvetoryGetCntElem(int idElem);
-		void update();
-		void move();//int v
-		void patrul(int start, int end);
+		void update(RenderWindow &window, float SCALE, float DEG);
+		void move(bool isControl);//int v
+		void patrul(int start, int end, float SCALE);
 		void select();
 		bool isSelected();
-};	
-////////////////////////////////////////////////////////////
-/// \constuct objects like settlers into set coordinate...	 
-/// todo: нужно сделать перегрузку функции дл€ создание объекта с заданной текстурой
-////////////////////////////////////////////////////////////	
-Mob::Mob(float SpawnPosX, float SpawnPosY):isSelect(false), invCntElem(0) {
-	mobTexture.loadFromFile("images/tilemap.png");		  //load texture tile map
-	mobSprite.setTexture(mobTexture);
-	mobSprite.setTextureRect(IntRect(0, 32, 32, 64));
-	mobSprite.setOrigin(16.f, 32.f);	                  //set center of the mobBody
-	mobSprite.setPosition(SpawnPosX, SpawnPosY);
-
-	b2PolygonShape shape;
-	shape.SetAsBox( (16.f / SCALE), (32.f / SCALE) );
-	b2BodyDef bdef;
-	bdef.type = b2_dynamicBody;
-	bdef.position.Set( (SpawnPosX / SCALE), (SpawnPosY / SCALE) );
-	b2FixtureDef fdef;
-	fdef.density = 1;
-	fdef.filter.groupIndex = -2;
-	fdef.shape = &shape;
-	  //add the created object in the world
-	mpeople = World.CreateBody(&bdef);
-	mpeople->CreateFixture(&fdef);
-	mpeople->SetUserData("Player");
-}
- Mob::~Mob(){ //нужно сделать деструктор	 	//delete[] ptr_inventoryMas;
- }
- //////////////////////////////////////////////////////////////////////////////////////////
- /// \проход по всему в инвентаре
- ///  если id уже есть, то добавл€ем кол-во, с проверкой превышени€ лимита.
- ///  если превышен лимит или таких еще нет, то нова€ запись c указанным айди и кол-во.
- //////////////////////////////////////////////////////////////////////////////////////////
-void Mob::InvetoryAdd(int idElem, int cntElem) {					
-	for (int i = 0; i < invCntElem; i++) {
-		if( (inventoryMas[i][0] == idElem) && (inventoryMas[i][1] < invLimitEachItem) ) {							
-			inventoryMas[i][1] += cntElem;				//todo: учесть если после добавлени€ будет больше сотни		
-			return;												
-		}
-	}
-	if (invCntElem < invMaxItem ) {
-		inventoryMas[invCntElem][0] = idElem;
-		inventoryMas[invCntElem][1] = cntElem;
-		invCntElem++;
-	}
-	//else {
-	//	return; //show message "not enaugt free space in the inventory"	возле места подбора вещей и этот поселенец должен отправитьс€ на склад сгрузить лишнее.
-	//}  
-}
-void Mob::InvetoryDropAllElem() {  
- // for (invCntElem; invCntElem > 0 ; invCntElem--;) {
-	for (int i = 0; i < invCntElem; i++) {
-		//drop code, obj in inventory are create in world in the coordinate of this mob
-		//дописать создание вычитаемых объектов из инвентар€ в мире с координамати игрока
-		inventoryMas[i][0] = 0;
-		inventoryMas[i][1] = 0;
-		invCntElem--;
-	}
-}
-//void Mob::InvetoryCompact() {}
-//void Mob::InvetoryDropElem(int idElem, int cntElem) {}
-//void Mob::InvetoryUsedElem(int idElem, int cntElem) {}
-
-
-//////////////////////////////////////////////////////////////////////////////////////////
-/// \проход по всему в инвентаре
-///  если id найден, то возвращает кол-во
-//////////////////////////////////////////////////////////////////////////////////////////
-int Mob::InvetoryGetCntElem(int idElem) {
-	int result; result = 0;
-	for (int i = 0; i < invCntElem; i++) {
-		if (inventoryMas[i][0] == idElem) {
-			result += inventoryMas[i][1];
-		}								  //оп€ть же не учитываетс€ если там будет несколько €чеек	 		 	   
-	}return result; //можно просто хранить общее колво предметов, когда выводить уже проставл€ть им щетчик, 
-//даже если в €чейке 155 ед. то удобно будет разбить их на две и вывести два спрайта, но хранить будет как одну запись.
-}  
-void Mob::update() {
-	b2Vec2 pos = mpeople->GetPosition();
-	mobAngle = mpeople->GetAngle();
-	ox = pos.x*SCALE;
-	oy = pos.y*SCALE;
-	mobSprite.setPosition(pos.x*SCALE, pos.y*SCALE);
-	mobSprite.setRotation(mobAngle*DEG);
-	window.draw(mobSprite);
-}
-void Mob::move() {	  //move(int v) 
-	//switch (v) {
-	//case 1: mpeople->ApplyLinearImpulse(b2Vec2( 0.f,  0.5f), mpeople->GetWorldCenter(), 1); break;	 1
-	//case 2: mpeople->ApplyLinearImpulse(b2Vec2( 0.f, -0.5f), mpeople->GetWorldCenter(), 1); break;	 2
-	//case 3: mpeople->ApplyLinearImpulse(b2Vec2( 0.5f, 0.f),  mpeople->GetWorldCenter(), 1); break;	 3
-	//case 4: mpeople->ApplyLinearImpulse(b2Vec2(-0.5f, 0.f),  mpeople->GetWorldCenter(), 1); break;	 4
-	//}
-
-	if ((Keyboard::isKeyPressed(Keyboard::Right)) && (isControl)) {
-		mpeople->ApplyLinearImpulse(b2Vec2(0.5f, 0.f), mpeople->GetWorldCenter(), 1);
-	}
-	if ((Keyboard::isKeyPressed(Keyboard::Left))  && (isControl)) { 
-		mpeople->ApplyLinearImpulse(b2Vec2(-0.5f, 0.f), mpeople->GetWorldCenter(), 1); 
-	}
-	if ((Keyboard::isKeyPressed(Keyboard::Up))    && (isControl)) { 
-		mpeople->ApplyLinearImpulse(b2Vec2(0.f, -0.5f), mpeople->GetWorldCenter(), 1); 
-	}
-	if ((Keyboard::isKeyPressed(Keyboard::Down))  && (isControl)) { 
-		mpeople->ApplyLinearImpulse(b2Vec2(0.f, 0.5f), mpeople->GetWorldCenter(), 1);
-	}
-
-
-
-}
-void Mob::patrul(int start, int end) {
-	b2Vec2 pos = mpeople->GetPosition();
-	mpeople->SetTransform(b2Vec2(pos.x, pos.y), 0.f);
-	if (nav) {
-		mpeople->ApplyLinearImpulse(b2Vec2(0.2f, 0.f), mpeople->GetWorldCenter(), 1);
-		if ( (pos.x*SCALE) >= end) { nav = false; mpeople->SetLinearVelocity(b2Vec2(0.f, 0.f)); }
-	}
-	else {
-		mpeople->ApplyLinearImpulse(b2Vec2(-0.2f, 0.f), mpeople->GetWorldCenter(), 1);
-		if ( (pos.x*SCALE) <= start) { nav = true; mpeople->SetLinearVelocity(b2Vec2(0.f, 0.f)); }
-	}
-}
-	
-void Mob::select() {
-	//if (Mouse::isButtonPressed(Mouse::Left)) {
-	isSelect = isSelect ? false : true;
-}
-bool Mob::isSelected() {
-	return isSelect;
-}  
+};
