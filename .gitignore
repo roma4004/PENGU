@@ -111,6 +111,8 @@ ipch/
 *.opensdf
 *.sdf
 *.cachefile
+*.VC.db 
+#*.VC.db added after installed VS2015 Update 2 (The same content as old *.sdf but new type database)
 
 # Visual Studio profiler
 *.psess

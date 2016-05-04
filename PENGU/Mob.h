@@ -41,17 +41,18 @@ class Mob{
 		b2PolygonShape PolygonShape;
 		b2BodyDef BodyDef;
 		b2FixtureDef FixtureDef;  		  
-	public:
-		float ox, oy; 
-		Mob(float x, float y, float SCALE, b2World &World, IntRect rectangl);
+	public:					
+		b2Vec2 mobPos;  //float ox, oy;
+		Mob(float x, float y, float SCALE, b2World &World, IntRect rectangl);  //x,y-spawn coord; scale-  ; ;
 	    ~Mob();	
 
 		void InvetoryAdd(int idElem, int cntElem);
 		void InvetoryDropAllElem();
 		int InvetoryGetCntElem(int idElem);
 		void update(RenderWindow &window, float SCALE, float DEG);
-		void move(bool isControl);//int v
+		void move();//int v
 		void patrul(int start, int end, float SCALE);
 		void select();
 		bool isSelected();
+		bool isControl = false;
 };

@@ -15,10 +15,10 @@ Mob::Mob(float SpawnPosX, float SpawnPosY, float SCALE,
 	mobSprite.setOrigin(16.f, 32.f);	                  //set center of the mobBody
 	mobSprite.setPosition(SpawnPosX, SpawnPosY);
 
-	PolygonShape.SetAsBox((16.f / SCALE), (32.f / SCALE));
+	PolygonShape.SetAsBox(16.f / SCALE, 32.f / SCALE);
 	
 	BodyDef.type = b2_dynamicBody;
-	BodyDef.position.Set((SpawnPosX / SCALE), (SpawnPosY / SCALE));
+	BodyDef.position.Set(SpawnPosX / SCALE, SpawnPosY / SCALE);
 
 	FixtureDef.density = 1;
 	FixtureDef.filter.groupIndex = -2;
@@ -64,7 +64,6 @@ void Mob::InvetoryDropAllElem() {
 //void Mob::InvetoryDropElem(int idElem, int cntElem) {}
 //void Mob::InvetoryUsedElem(int idElem, int cntElem) {}
 
-
 //////////////////////////////////////////////////////////////////////////////////////////
 /// \проход по всему в инвентаре
 ///  если id найден, то возвращает кол-во
@@ -79,27 +78,17 @@ int Mob::InvetoryGetCntElem(int idElem) {
 					//даже если в €чейке 155 ед. то удобно будет разбить их на две и вывести два спрайта, но хранить будет как одну запись.
 }
 void Mob::update(RenderWindow &window, float SCALE, float DEG) {
-	b2Vec2 pos = mpeople->GetPosition();
-	mobAngle = mpeople->GetAngle();
-	ox = pos.x*SCALE;
-	oy = pos.y*SCALE;
-	mobSprite.setPosition(pos.x*SCALE, pos.y*SCALE);
-	mobSprite.setRotation(mobAngle*DEG);
-	window.draw(mobSprite);
+	mobPos.x = mpeople->GetPosition().x*SCALE;
+  	mobPos.y = mpeople->GetPosition().y*SCALE;
+	mobSprite.setPosition(mobPos.x,mobPos.y);
+	mobSprite.setRotation(mpeople->GetAngle()*DEG);					
+	window.draw(mobSprite);	
 }
-void Mob::move(bool isControl) {
-	if ((Keyboard::isKeyPressed(Keyboard::Right)) && (isControl)) {
-		mpeople->ApplyLinearImpulse(b2Vec2(0.5f, 0.f), mpeople->GetWorldCenter(), 1);
-	}
-	if ((Keyboard::isKeyPressed(Keyboard::Left)) && (isControl)) {
-		mpeople->ApplyLinearImpulse(b2Vec2(-0.5f, 0.f), mpeople->GetWorldCenter(), 1);
-	}
-	if ((Keyboard::isKeyPressed(Keyboard::Up)) && (isControl)) {
-		mpeople->ApplyLinearImpulse(b2Vec2(0.f, -0.5f), mpeople->GetWorldCenter(), 1);
-	}
-	if ((Keyboard::isKeyPressed(Keyboard::Down)) && (isControl)) {
-		mpeople->ApplyLinearImpulse(b2Vec2(0.f, 0.5f), mpeople->GetWorldCenter(), 1);
-	}
+void Mob::move() { if (!this->isControl) return; 	//сделать задание управл€емости по выделению
+	if (Keyboard::isKeyPressed(Keyboard::Right) ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.5f,  0.f ), mpeople->GetWorldCenter(), 1); } //переделать отправление команд на конкретного экземпл€ра класса
+	if (Keyboard::isKeyPressed(Keyboard::Left)  ) { mpeople->ApplyLinearImpulse(b2Vec2(-0.5f,  0.f ), mpeople->GetWorldCenter(), 1); }
+	if (Keyboard::isKeyPressed(Keyboard::Up)    ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.f , -0.5f), mpeople->GetWorldCenter(), 1); }
+	if (Keyboard::isKeyPressed(Keyboard::Down)  ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.f ,  0.5f), mpeople->GetWorldCenter(), 1); }
 }
 void Mob::patrul(int start, int end, float SCALE) {
 	b2Vec2 pos = mpeople->GetPosition();
@@ -116,7 +105,7 @@ void Mob::patrul(int start, int end, float SCALE) {
 void Mob::select() {
 	//if (Mouse::isButtonPressed(Mouse::Left)) {
 	isSelect = isSelect ? false : true;
-}
+}									 //доделать выделение моба и что бы камера фиксировалась на нем когда он выделен
 bool Mob::isSelected() {
 	return isSelect;
 }
