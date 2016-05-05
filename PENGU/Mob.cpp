@@ -79,10 +79,16 @@ int Mob::InvetoryGetCntElem(int idElem) {
 }
 void Mob::update(RenderWindow &window, float SCALE, float DEG) {
 	mobPos.x = mpeople->GetPosition().x*SCALE;
-  	mobPos.y = mpeople->GetPosition().y*SCALE;
-	mobSprite.setPosition(mobPos.x,mobPos.y);
+	mobPos.y = mpeople->GetPosition().y*SCALE;
+	mobSprite.setPosition(mobPos.x, mobPos.y);
 	mobSprite.setRotation(mpeople->GetAngle()*DEG);					
 	window.draw(mobSprite);	
+	if (Mouse::isButtonPressed(Mouse::Button::Left)) {
+		if (IntRect(0, 0, 300, 300).contains(Mouse::getPosition(window))) {	 
+	//if (mobSprite.getGlobalBounds().contains(Mouse::getPosition(window))) {				  
+			if (Mouse::isButtonPressed(Mouse::Left)) select(); 
+		}
+	}
 }
 void Mob::move() { if (!this->isControl) return; 	//сделать задание управл€емости по выделению
 	if (Keyboard::isKeyPressed(Keyboard::Right) ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.5f,  0.f ), mpeople->GetWorldCenter(), 1); } //переделать отправление команд на конкретного экземпл€ра класса
@@ -91,20 +97,15 @@ void Mob::move() { if (!this->isControl) return; 	//сделать задание управл€емост
 	if (Keyboard::isKeyPressed(Keyboard::Down)  ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.f ,  0.5f), mpeople->GetWorldCenter(), 1); }
 }
 void Mob::patrul(int start, int end, float SCALE) {
-	b2Vec2 pos = mpeople->GetPosition();
-	mpeople->SetTransform(b2Vec2(pos.x, pos.y), 0.f);
-	if (nav) {
-		mpeople->ApplyLinearImpulse(b2Vec2(0.2f, 0.f), mpeople->GetWorldCenter(), 1);
-		if ((pos.x*SCALE) >= end) { nav = false; mpeople->SetLinearVelocity(b2Vec2(0.f, 0.f)); }
-	}
-	else {
-		mpeople->ApplyLinearImpulse(b2Vec2(-0.2f, 0.f), mpeople->GetWorldCenter(), 1);
-		if ((pos.x*SCALE) <= start) { nav = true; mpeople->SetLinearVelocity(b2Vec2(0.f, 0.f)); }
-	}
+	mpeople->SetTransform(mpeople->GetPosition(), 0.f);
+	float offset = 0.2f;
+	if (mpeople->GetPosition().x*SCALE >= end) offset = -0.2f;
+	if (mpeople->GetPosition().x*SCALE <= start) offset = 0.2f;
+	mpeople->ApplyLinearImpulse(b2Vec2(offset, 0.f), mpeople->GetWorldCenter(), 1);
 }
 void Mob::select() {
 	//if (Mouse::isButtonPressed(Mouse::Left)) {
-	isSelect = isSelect ? false : true;
+	isControl = isSelect = isSelect ? false : true;
 }									 //доделать выделение моба и что бы камера фиксировалась на нем когда он выделен
 bool Mob::isSelected() {
 	return isSelect;

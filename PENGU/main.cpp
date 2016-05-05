@@ -107,8 +107,7 @@ void menu(RenderWindow &window) {	//стоит вынести создание текстур в отдельный к
 		menu2.setColor(Color::White);
 		if (IntRect(100, 30, 300, 50).contains(Mouse::getPosition(window))) {	  // меняем заливку тектуры пункта меню 1 на синий при наведении
 			menu1.setColor(Color::Blue);									     //  и если была нажата левая мыши то завершение цыкла меню, то есть запуск игры
-			if (Mouse::isButtonPressed(Mouse::Left)) break;
-		} 
+			if (Mouse::isButtonPressed(Mouse::Left)) break;	} 
 		if (IntRect(100, 90, 300, 50).contains(Mouse::getPosition(window))) {	   // меняем заливку тектуры пункта меню 2 на синий при наведении
 			menu2.setColor(Color::Blue);										  //  и если была нажата левая мыши то закрытие окна и цыкла, то есть выход из игры
 			if (Mouse::isButtonPressed(Mouse::Left)) { window.close(); break; }
@@ -135,7 +134,8 @@ void eventsOn(){
 		view.reset(FloatRect(0.f, 0.f, 
 			static_cast<float>(window.getSize().x), 
 			static_cast<float>(window.getSize().y) ));
-		zoomCnt = 0; }
+		zoomCnt = 0; 
+	}	
 }	   
 void setZoomRate(float W, float H, int wheelDelta) {
 	float zoomRate = 50.f * wheelDelta;               //шаг смещени множим на кол-во смещений, прилетают значения целые в диапазон -2..2
@@ -171,7 +171,7 @@ void autoResize() { //надо дописать ограничение минимальный размер окна 640х480 
 void drawSprite(Sprite targetSprite, b2Vec2 pos, float angle)
 {
 	//while (angle <= 0 ) { angle += 360.f; }		  //the normalized angle if below 0
-	//while (angle > 360) { angle -= 360.f; }		  //the normalized angle if above 360
+	//while (angle >=360) { angle -= 360.f; }		  //the normalized angle if above 360
 	targetSprite.setPosition(pos.x*SCALE, pos.y*SCALE);
 	targetSprite.setRotation(angle*DEG);
 	window.draw(targetSprite);
@@ -209,7 +209,7 @@ int main(){
 	CreateRandWorld();			 //создаем мир
 
 	Mob mob1(800.f, 50.f, SCALE, World, IntRect(0, 32, 32, 64)); mob1.isControl = 1; //создаем первого моба управляемого
-	Mob mob2(900.f, 50.f, SCALE, World, IntRect(0, 32, 32, 64)); 	                 //создаем второго моба не управляемого
+	Mob mob2(900.f, 50.f, SCALE, World, IntRect(0, 32, 32, 64)); mob2.isControl = 1; //создаем второго моба не управляемого
 
 	//mob1.InvetoryAdd(43, 34);
 	//Clock clock; //создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
@@ -275,20 +275,21 @@ int main(){
 		//if (mob1.oy == view.getCenter().y) innertCntY = 2;
 
 		setCamCenter(mob1.mobPos.x, mob1.mobPos.y);
-		
+
 		mob1.update(window, SCALE, DEG);
 
 		mob2.patrul(600, 1800, SCALE);
 		mob2.update(window, SCALE, DEG);
-				
-	    viewMove(window);
+		
+		viewMove(window);
 		//{start debug section 
 		textRenderBuff.str("");								    // чистим поток
 		textRenderBuff << "zoomSetX " << drawtxt  << "\n" 	   // и поочередно заносим отладочную информацию
 			           << "zoomSetY " << drawtxt2 << "\n"	
 			           << "zoomCnt "  << zoomCnt  << "\n" 
-			           << "mob1.ox "  << mob1.mobPos.x  << "\n"
-					   << "mob1.oy "  << mob1.mobPos.y  << "\n";
+			           << "mob1.ox "  << mob1.mobPos.x << "\n"
+					   << "mob1.oy "  << mob1.mobPos.y << "\n"
+					   << "drawtxt3 " << drawtxt3 << "\n";
 		text.setString(textRenderBuff.str());		    // потоковое значение конвертируем в строку
 		text.setPosition(mob1.mobPos.x - 30, mob1.mobPos.y - 160); // указание позиции текста на экране
 		window.draw(text);					          // отрисовываем текст
