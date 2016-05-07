@@ -33,21 +33,22 @@ class Mob{
 
 		unsigned __int8 health;		//0..255	<stil not used> 
 		unsigned __int8 armore;		//0..255	<stil not used>
-
+		
 		Texture mobTexture;
 		Sprite mobSprite;
 		b2Body *mpeople;
 		b2PolygonShape PolygonShape;
 		b2BodyDef BodyDef;
 		b2FixtureDef FixtureDef;  		  
-	public:					
+	public:	
+		//View mobView;				
 		b2Vec2 mobPos;
 		Mob(float x, float y, float SCALE, b2World &World, IntRect rectangl);  //x,y-spawn coord; scale-  ; ;
 	    ~Mob();			  			
 		void InvetoryAdd(int idElem, int cntElem);
 		void InvetoryDropAllElem();
 		int InvetoryGetCntElem(int idElem);
-		void update(RenderWindow &window, float SCALE, float DEG);
+		void update(RenderWindow &window, float SCALE, float DEG, View &view);
 		void move();
 		void patrul(int start, int end, float SCALE);
 		void select();

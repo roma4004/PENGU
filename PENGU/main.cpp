@@ -158,7 +158,7 @@ void autoResize() { //надо дописать ограничение минимальный размер окна 640х480 
 		winSizeY = static_cast<float>( window.getSize().y);
 
 		view.reset(FloatRect(0.f, 0.f, winSizeX, winSizeY));
-
+		//view.getViewport().
 		int zoomDelta = zoomCnt;
 		zoomCnt = 0;
 		setZoomRate(winSizeX, winSizeY, zoomDelta);
@@ -176,6 +176,9 @@ void drawSprite(Sprite targetSprite, b2Vec2 pos, float angle)
 	targetSprite.setRotation(angle*DEG);
 	window.draw(targetSprite);
 }
+//void vectorConvert(Vector2u convertingArg) {b2Vec2 convertedArg = convertingArg;};
+//void vectorConvert(b2Vec2 convertingArg) {Vector2u convertedArg = convertingArg;};
+
 int main(){		   
 	//window.setFramerateLimit(optimaFPS);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
 	window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
@@ -209,7 +212,7 @@ int main(){
 	CreateRandWorld();			 //создаем мир
 
 	Mob mob1(800.f, 50.f, SCALE, World, IntRect(0, 32, 32, 64)); mob1.isControl = 1; //создаем первого моба управляемого
-	Mob mob2(900.f, 50.f, SCALE, World, IntRect(0, 32, 32, 64)); mob2.isControl = 1; //создаем второго моба не управляемого
+	Mob mob2(900.f, 50.f, SCALE, World, IntRect(0, 32, 32, 64)); mob2.isControl = 0; //создаем второго моба не управляемого
 
 	//mob1.InvetoryAdd(43, 34);
 	//Clock clock; //создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
@@ -274,12 +277,13 @@ int main(){
 		//if (mob1.ox == view.getCenter().x) innertCntX = 2;
 		//if (mob1.oy == view.getCenter().y) innertCntY = 2;
 
-		setCamCenter(mob1.mobPos.x, mob1.mobPos.y);
+		      if (mob1.isSelected()){setCamCenter(mob1.mobPos);
+		}else if (mob2.isSelected()) setCamCenter(mob2.mobPos);
 
-		mob1.update(window, SCALE, DEG);
+		mob1.update(window, SCALE, DEG, view);
 
 		mob2.patrul(600, 1800, SCALE);
-		mob2.update(window, SCALE, DEG);
+		mob2.update(window, SCALE, DEG, view);
 		
 		viewMove(window);
 		//{start debug section 
@@ -287,8 +291,10 @@ int main(){
 		textRenderBuff << "zoomSetX " << drawtxt  << "\n" 	   // и поочередно заносим отладочную информацию
 			           << "zoomSetY " << drawtxt2 << "\n"	
 			           << "zoomCnt "  << zoomCnt  << "\n" 
-			           << "mob1.ox "  << mob1.mobPos.x << "\n"
-					   << "mob1.oy "  << mob1.mobPos.y << "\n"
+			          // << "mob1.ox "  << mob1.mobPos.x << "\n"
+					  // << "mob1.oy "  << mob1.mobPos.y << "\n"
+					   << "mob1.mobPos.x " << mob1.mobPos.x << "\n"
+					   << "mob1.mobPos.y " << mob1.mobPos.y << "\n"			
 					   << "drawtxt3 " << drawtxt3 << "\n";
 		text.setString(textRenderBuff.str());		    // потоковое значение конвертируем в строку
 		text.setPosition(mob1.mobPos.x - 30, mob1.mobPos.y - 160); // указание позиции текста на экране

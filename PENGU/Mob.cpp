@@ -77,19 +77,40 @@ int Mob::InvetoryGetCntElem(int idElem) {
 	}return result; //можно просто хранить общее колво предметов, когда выводить уже проставл€ть им щетчик, 
 					//даже если в €чейке 155 ед. то удобно будет разбить их на две и вывести два спрайта, но хранить будет как одну запись.
 }
-void Mob::update(RenderWindow &window, float SCALE, float DEG) {
+void Mob::update(RenderWindow &window, float SCALE, float DEG, View &view) {
 	mobPos.x = mpeople->GetPosition().x*SCALE;
 	mobPos.y = mpeople->GetPosition().y*SCALE;
 	mobSprite.setPosition(mobPos.x, mobPos.y);
 	mobSprite.setRotation(mpeople->GetAngle()*DEG);					
-	window.draw(mobSprite);	
+	window.draw(mobSprite);
+	//mobView.setCenter(mobPos.x, mobPos.y);
+  //if (Mouse::isButtonPressed(Mouse::Left))	
 	if (Mouse::isButtonPressed(Mouse::Button::Left)) {
-		if (IntRect(0, 0, 300, 300).contains(Mouse::getPosition(window))) {	 
-	//if (mobSprite.getGlobalBounds().contains(Mouse::getPosition(window))) {				  
-			if (Mouse::isButtonPressed(Mouse::Left)) select(); 
-		}
+		Vector2i mouseCoord = Mouse::getPosition(window);
+		mouseCoord.x += view.getCenter().x - (view.getSize().x / 2);
+		mouseCoord.y += view.getCenter().y - (view.getSize().y / 2);	  		
+		if (IntRect(mobPos.x - 8, mobPos.y - 16, mobPos.x + 8, mobPos.y + 16).contains(mouseCoord)) select();	 //осталось добавить поправку на зум
 	}
-}
+}			//b2Vec2 vec2;   
+			//Vector2i vec2i = Mouse::getPosition(window);
+			//vec2.x = vec2i.x;
+			//vec2.y = vec2i.y;
+			////GetWorldPoint(vec2);
+			//	SCALE
+			//b2AABB worldAABB;
+			//worldAABB.lowerBound.Set(Mouse::getPosition(window).x / SCALE - 100.0f, Mouse::getPosition(window).y / SCALE - 100.0f);
+			//worldAABB.upperBound.Set(Mouse::getPosition(window).x / SCALE + 100.0f, Mouse::getPosition(window).y / SCALE + 100.0f);
+			
+			//4.7 In Shape Point Test
+			//	You can test a point for overlap with a shape.You provide a transform for the shape and a world point.
+			//	b2Transfrom transform;
+			//  transform.SetIdentity();
+			//  b2Vec2 point(5.0f, 2.0f);
+			//  bool hit = shape->TestPoint(transform, point);
+			//Edge and chain shapes always return false, even if the chain is a loop.
+
+			//if (mobSprite.getGlobalBounds().contains(Mouse::getPosition(window))) {	
+
 void Mob::move() { if (!this->isControl) return; 	//сделать задание управл€емости по выделению
 	if (Keyboard::isKeyPressed(Keyboard::Right) ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.5f,  0.f ), mpeople->GetWorldCenter(), 1); } //переделать отправление команд на конкретного экземпл€ра класса
 	if (Keyboard::isKeyPressed(Keyboard::Left)  ) { mpeople->ApplyLinearImpulse(b2Vec2(-0.5f,  0.f ), mpeople->GetWorldCenter(), 1); }
@@ -104,7 +125,8 @@ void Mob::patrul(int start, int end, float SCALE) {
 	mpeople->ApplyLinearImpulse(b2Vec2(offset, 0.f), mpeople->GetWorldCenter(), 1);
 }
 void Mob::select() {
-	//if (Mouse::isButtonPressed(Mouse::Left)) {
+	//if (Mouse::isButtonPressed(Mouse::Left)) { 
+	
 	isControl = isSelect = isSelect ? false : true;
 }									 //доделать выделение моба и что бы камера фиксировалась на нем когда он выделен
 bool Mob::isSelected() {
