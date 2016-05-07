@@ -24,6 +24,7 @@ void line(int start, int end, int LineTarget) {
 // Считаем длину линий горы и вызываем line. В итоге выходит гора.
 void Mountain(int Center, int height, int MountainTopDelete=0){
 	int x1, x2, LineTarget =39;
+	if (height > 39) height = 39;
 	for (int i = height; i >= MountainTopDelete; i--) {
 		x1 = Center - i; if (x1 < 0) x1 = 1;
 		x2 = Center + i; if (x2 > WIDTH_MAP-1) x2 = WIDTH_MAP-1;
@@ -44,7 +45,7 @@ void CreateRandWorld() {
 		// коробка мира Конец
 
 	//рисовка горы потом в форчик с рандомом пиханём 
-	Mountain(100, 20, 10);
+	Mountain(40, 20);
 	
 	//создаем мир согласно сгенерированной карте
 	for (int i = 0; i < HEIGHT_MAP; i++)							  
