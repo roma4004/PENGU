@@ -1,9 +1,19 @@
 #pragma once
 		   
-const int HEIGHT_MAP = 40;
+const int HEIGHT_MAP = 50;
 const int WIDTH_MAP = 146;
 
 sf::String TileMap[HEIGHT_MAP] = {
+	"                                                                                                                                                 ",
+	"                                                                                                                                                 ",
+	"                                                                                                                                                 ",
+	"                                                                                                                                                 ",
+	"                                                                                                                                                 ",
+	"                                                                                                                                                 ",
+	"                                                                                                                                                 ",
+	"                                                                                                                                                 ",
+	"                                                                                                                                                 ",
+	"                                                                                                                                                 ",
 	"                                                                                                                                                 ",
 	"                                                                                                                                                 ",
 	"                                                                                                                                                 ",

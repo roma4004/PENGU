@@ -15,46 +15,42 @@ const float DEG = 57.29577f;
 b2Vec2 Gravity(0.f, 9.8f);
 b2World World(Gravity);
 RenderWindow window(VideoMode(DefWinSizeX, DefWinSizeY, 32), "PENGU"); 
-// обычная рисовка линии принимает начало, конец и номер строки на которой рисовать
-void line(int start, int end, int LineTarget) {
-	for (int i = start; i <= end; i++) {
-		TileMap[LineTarget][i] = '3';
-	}
-}
-// Считаем длину линий горы и вызываем line. В итоге выходит гора.
-void Mountain(int Center, int height, int MountainTopDelete=0){
-	int x1, x2, LineTarget =39;
-	if (height > 39) height = 39;
-	for (int i = height; i >= MountainTopDelete; i--) {
-		x1 = Center - i; if (x1 < 0) x1 = 1;
-		x2 = Center + i; if (x2 > WIDTH_MAP-1) x2 = WIDTH_MAP-1;
-		LineTarget -= 1;
-		line(x1,x2, LineTarget);
-	}
-}
-void CreateRandWorld() {
-		// коробка мира
-	for (int j = 0; j < WIDTH_MAP; j++) {      
-		TileMap[0][j] = '3';					
-		TileMap[39][j] = '3';					
-		if (j < (HEIGHT_MAP - 1)) {				
-			TileMap[j][0] = '3';               
-			TileMap[j][WIDTH_MAP - 1] = '3';   
-		}
-	}		 
-		// коробка мира Конец
 
-	//рисовка горы потом в форчик с рандомом пиханём 
-	Mountain(40, 20);
+void Mountain(int center, int count, int LineTarget, int MountainTopDelete) {
+		if (count - MountainTopDelete <= 0)   return;
+		Mountain(center, count - 1, LineTarget - 1, MountainTopDelete);
+		int start = center - count + rand() % 2;
+		int end = center + count - rand() % 2;
+		if (start < 1) start = 1;
+		if (end > WIDTH_MAP - 1) end = WIDTH_MAP - 1;
+			for (int i = start; i <= end; i++) {
+			TileMap[LineTarget][i] = '3';			
+		}		
+	}
+
+void CreateRandWorld() {
+	srand(static_cast<unsigned int>(time(NULL)));
+	for (int i = 0; i < 100; i++)
+		Mountain(rand() % 146, rand() % 25, HEIGHT_MAP - 1, rand() % 25);
 	
+	// коробка мира
+	for (int j = 0; j < WIDTH_MAP; j++) {
+		TileMap[0][j] = '3';
+		TileMap[HEIGHT_MAP - 1][j] = '3';
+		if (j < (HEIGHT_MAP - 1)) {
+			TileMap[j][0] = '3';
+			TileMap[j][WIDTH_MAP - 1] = '3';
+		}
+	}
+	// коробка мира Конец
+
 	//создаем мир согласно сгенерированной карте
 	for (int i = 0; i < HEIGHT_MAP; i++)							  
 		for (int j = 0; j < WIDTH_MAP; j++) {
 			if (TileMap[i][j] == '3') setObj((j * 32.f), (i * 32.f), "EdgeWorld");
-			if (TileMap[i][j] == '2') setObj((j * 32.f), (i * 32.f), "Ground"   );
-			if (TileMap[i][j] == '1') setObj((j * 32.f), (i * 32.f), "TopGround");
 		}
 }
+
 void setObj(float x, float y, void *type) {   	
 	b2PolygonShape gr;						  
 	gr.SetAsBox(16.f / SCALE, 16.f / SCALE);  
