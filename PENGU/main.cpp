@@ -15,44 +15,39 @@ const float DEG = 57.29577f;
 b2Vec2 Gravity(0.f, 9.8f);
 b2World World(Gravity);
 RenderWindow window(VideoMode(DefWinSizeX, DefWinSizeY, 32), "PENGU"); 
-void CreateRandWorld() {
-	srand(static_cast<unsigned int>(time(NULL)));
-	int OfMountains[30][2], start, StartString; // всего 30 гор по 2 параметра 0-координа по X, 1- высота горы
-
-	for (int i = HEIGHT_MAP - 1; i > HEIGHT_MAP - 5; i--) {// заливаем снизу текстурами 4 ряда блоков максимальной ширины от нижней точки полоски
-		for (int j = 0; j < WIDTH_MAP; j++)
-			TileMap[i][j] = '3';
+// обычная рисовка линии принимает начало, конец и номер строки на которой рисовать
+void line(int start, int end, int LineTarget) {
+	for (int i = start; i <= end; i++) {
+		TileMap[LineTarget][i] = '3';
 	}
-	for (int j = 0; j < WIDTH_MAP; j++) {        // обводим сверху, слева и справа
-		TileMap[0][j] = '3';                    // полоска сверху 
-		if (j < (HEIGHT_MAP - 1)) {            // так как карта прямоугольная надо проверять чтоб j не выходила за высоту иначе будет ошибка
-			TileMap[j][0] = '3';              // полоска слева
-			TileMap[j][WIDTH_MAP - 1] = '3'; // полоска справа
-		}
-	}
-	OfMountains[0][0] = -10;                  // принудительная гора с левой части карты,
-	OfMountains[0][1] = (rand() % 12) + 10;   //  и рандом высоты для этой горы.
-	OfMountains[1][0] = WIDTH_MAP - 10;      // принудительная гора с правой части карты, 
-	OfMountains[1][1] = (rand() % 12) + 10; //  и рандом высоты для этой горы.
-	for (int i = 2; i < 30; i++) {                // задаем случайные параметры горам для 30 гор
-		OfMountains[i][0] = rand() % WIDTH_MAP;  // координата по х
-		OfMountains[i][1] = (rand() % 12) + 10; // поправка высоты исключает горы высотой меньше поправки
-	}															                 // отрисовываем гору																  
-	for (int count = 0; count < 30; count++)                                    // проходимся по каждой горе
-		for (int h = 0; h <= OfMountains[count][1] - 4; h++)  {                   // рисуем гору полосками начиная с самой нижней полоски и заканчивая (высота-4) чтобы исключить острый конец горы и добавить плавности (count переключает горы)
-			StartString = h + rand() % 2 ;									// переменная для смещения старта отрисовки чтобы не было 100% ёлочки 
-			for (int k = 0; k <= (OfMountains[count][1] * 2 - (h * 2)); k++) {// самое интересное каждая полоска должна закончиться раньше в прогрессии.
-				start = OfMountains[count][0] + StartString + k;                       // считаем начало прорисовки полоски для каждой полоски смещаем старт на 1 блок вправа что была ступенька
-				if (start >= WIDTH_MAP-1) start = WIDTH_MAP - 2;           // проверяем выход за край справа	  					
-				if (start <= 0) start = 1;	                    // проверяем выход за край слева 												 
-				TileMap[(HEIGHT_MAP - 4) - h][start] = '2'; // собственно заливаем 2-йками
-			}
 }
-	for (int i = 0; i < HEIGHT_MAP; i++)													//делаю верхушки с травой
-		for (int j = 0; j < WIDTH_MAP; j++) {
-			if ((TileMap[i][j] == '2') && (TileMap[i-1][j] == ' ')) { TileMap[i][j] = '1'; } // если я нашёл элемент горы "2" и над ним пусто значит это верхушка
-		}			 
-	for (int i = 0; i < HEIGHT_MAP; i++)							   //создаем мир согласно сгенерированной карте
+// Считаем длину линий горы и вызываем line. В итоге выходит гора.
+void Mountain(int Center, int height, int MountainTopDelete=0){
+	int x1, x2, LineTarget =39;
+	for (int i = height; i >= MountainTopDelete; i--) {
+		x1 = Center - i; if (x1 < 0) x1 = 1;
+		x2 = Center + i; if (x2 > WIDTH_MAP-1) x2 = WIDTH_MAP-1;
+		LineTarget -= 1;
+		line(x1,x2, LineTarget);
+	}
+}
+void CreateRandWorld() {
+		// коробка мира
+	for (int j = 0; j < WIDTH_MAP; j++) {      
+		TileMap[0][j] = '3';					
+		TileMap[39][j] = '3';					
+		if (j < (HEIGHT_MAP - 1)) {				
+			TileMap[j][0] = '3';               
+			TileMap[j][WIDTH_MAP - 1] = '3';   
+		}
+	}		 
+		// коробка мира Конец
+
+	//рисовка горы потом в форчик с рандомом пиханём 
+	Mountain(100, 20, 10);
+	
+	//создаем мир согласно сгенерированной карте
+	for (int i = 0; i < HEIGHT_MAP; i++)							  
 		for (int j = 0; j < WIDTH_MAP; j++) {
 			if (TileMap[i][j] == '3') setObj((j * 32.f), (i * 32.f), "EdgeWorld");
 			if (TileMap[i][j] == '2') setObj((j * 32.f), (i * 32.f), "Ground"   );
@@ -277,9 +272,9 @@ int main(){
 		//if (mob1.ox == view.getCenter().x) innertCntX = 2;
 		//if (mob1.oy == view.getCenter().y) innertCntY = 2;
 
-		      if (mob1.isSelected()){setCamCenter(mob1.mobPos);
-		}else if (mob2.isSelected()) setCamCenter(mob2.mobPos);
-
+		//      if (mob1.isSelected()){setCamCenter(mob1.mobPos);
+		//}else if (mob2.isSelected()) setCamCenter(mob2.mobPos);
+		setCamCenter(mob1.mobPos);
 		mob1.update(window, SCALE, DEG, view);
 
 		mob2.patrul(600, 1800, SCALE);
