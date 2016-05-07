@@ -129,23 +129,33 @@ void eventsOn(){
 		zoomCnt = 0; 
 	}	
 }	   
-void setZoomRate(float W, float H, int wheelDelta) {//шаг смещения умножаем на кол-во смещений, аргуметом присылают целые значения (wheelDelta)  в диапазоне -2..2
+void setZoomRate(float Width, float Height, int wheelDelta) {//шаг смещения умножаем на кол-во смещений, аргуметом присылают целые значения (wheelDelta)  в диапазоне -2..2
 	zoomRate = 50.f * wheelDelta;
 	if ((zoomCnt + wheelDelta >= minZoom) 	 // minZoom = -20;   
-	&&  (zoomCnt + wheelDelta <= maxZoom)) { // maxZoom = +10;	 
-		view.reset(
-			FloatRect(
-			//	view.getCenter().x - (view.getSize().x / 2), 
-			//  view.getCenter().y - (view.getSize().y / 2),
-				0.f, 
-				0.f,
-				W - zoomRate,
-				(W - zoomRate)*(H / W)));	
+	&&  (zoomCnt + wheelDelta <= maxZoom)) { // maxZoom = +10;
+		
+		float viewOldLeft = view.getCenter().x - (view.getSize().x / 2);
+		float viewOldTop  = view.getCenter().y - (view.getSize().y / 2);
+		
+		float viewWidth  = Width - zoomRate;
+		float viewHeight = viewWidth*(Height / Width);
+		
+		float viewTopOffset  = (Width  - viewWidth) / 2;
+		float viewLeftOffset = (Height - viewHeight) / 2;
+		
+		float viewLeft = viewOldLeft + viewTopOffset;
+		float viewTop  = viewOldTop  + viewLeftOffset;  
+		
+		
+		view.reset(FloatRect(viewLeft, viewTop, viewWidth, viewHeight));
+	
 		zoomCnt = zoomCnt + wheelDelta;
+		
+		
 	}
 	//{start debug section 
-	drawtxt = W;
-	drawtxt2 = H;
+	drawtxt = Width;
+	drawtxt2 = Height;
 	//}end debug section 
 }	
 void autoResize() { //надо дописать ограничение минимальный размер окна 640х480  например таким способом, и должен быть способ задавать без вектора	window.setSize(sf::Vector2u(640, 480));	   
@@ -158,6 +168,7 @@ void autoResize() { //надо дописать ограничение минимальный размер окна 640х480 
 		winSizeY = static_cast<float>( window.getSize().y);
 
 		view.reset(FloatRect(0.f, 0.f, winSizeX, winSizeY));
+		//view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.5f, 1.5f));
 		//view.getViewport().
 		int zoomDelta = zoomCnt;
 		zoomCnt = 0;
@@ -275,9 +286,9 @@ int main(){
 		//if (mob1.ox == view.getCenter().x) innertCntX = 2;
 		//if (mob1.oy == view.getCenter().y) innertCntY = 2;
 
-		//      if (mob1.isSelected()){setCamCenter(mob1.mobPos);
-		//}else if (mob2.isSelected()) setCamCenter(mob2.mobPos);
-		setCamCenter(mob1.mobPos);
+		      if (mob1.isSelected()){setCamCenter(mob1.mobPos);
+		}else if (mob2.isSelected()) setCamCenter(mob2.mobPos);
+
 		mob1.update(window, SCALE, DEG, view);
 
 		mob2.patrul(600, 1800, SCALE);
