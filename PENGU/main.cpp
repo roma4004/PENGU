@@ -132,10 +132,18 @@ void eventsOn(){
 		zoomCnt = 0; 
 	}	
 }	   
-void setZoomRate(float W, float H, int wheelDelta) {
-	float zoomRate = 50.f * wheelDelta;               //шаг смещени множим на кол-во смещений, прилетают значения целые в диапазон -2..2
-	if ((zoomCnt + wheelDelta >= maxZoomBottom) && (zoomCnt + wheelDelta <= maxZoomTop)) {
-		view.reset(FloatRect(0.f,0.f, W - zoomRate, (W - zoomRate)*(H / W)));
+void setZoomRate(float W, float H, int wheelDelta) {//шаг смещения умножаем на кол-во смещений, аргуметом присылают целые значения (wheelDelta)  в диапазоне -2..2
+	zoomRate = 50.f * wheelDelta;
+	if ((zoomCnt + wheelDelta >= minZoom) 	 // minZoom = -20;   
+	&&  (zoomCnt + wheelDelta <= maxZoom)) { // maxZoom = +10;	 
+		view.reset(
+			FloatRect(
+			//	view.getCenter().x - (view.getSize().x / 2), 
+			//  view.getCenter().y - (view.getSize().y / 2),
+				0.f, 
+				0.f,
+				W - zoomRate,
+				(W - zoomRate)*(H / W)));	
 		zoomCnt = zoomCnt + wheelDelta;
 	}
 	//{start debug section 
@@ -144,8 +152,8 @@ void setZoomRate(float W, float H, int wheelDelta) {
 	//}end debug section 
 }	
 void autoResize() { //надо дописать ограничение минимальный размер окна 640х480  например таким способом, и должен быть способ задавать без вектора	window.setSize(sf::Vector2u(640, 480));	   
-	if (window.getSize().x <= 320) window.setSize(Vector2u(320, window.getSize().y     ));  // maxZoomTop = 5;
-	if (window.getSize().y <= 240) window.setSize(Vector2u(     window.getSize().x, 240)); // maxZoomBottom = 5;
+	if (window.getSize().x <= 320) window.setSize(Vector2u(320, window.getSize().y     )); 
+	if (window.getSize().y <= 240) window.setSize(Vector2u(     window.getSize().x, 240)); 
 
 	if ((window.getSize().x != winSizeX) 
 	 || (window.getSize().y != winSizeY)) {
@@ -171,8 +179,6 @@ void drawSprite(Sprite targetSprite, b2Vec2 pos, float angle)
 	targetSprite.setRotation(angle*DEG);
 	window.draw(targetSprite);
 }
-//void vectorConvert(Vector2u convertingArg) {b2Vec2 convertedArg = convertingArg;};
-//void vectorConvert(b2Vec2 convertingArg) {Vector2u convertedArg = convertingArg;};
 
 int main(){		   
 	//window.setFramerateLimit(optimaFPS);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
@@ -285,9 +291,7 @@ int main(){
 		textRenderBuff.str("");								    // чистим поток
 		textRenderBuff << "zoomSetX " << drawtxt  << "\n" 	   // и поочередно заносим отладочную информацию
 			           << "zoomSetY " << drawtxt2 << "\n"	
-			           << "zoomCnt "  << zoomCnt  << "\n" 
-			          // << "mob1.ox "  << mob1.mobPos.x << "\n"
-					  // << "mob1.oy "  << mob1.mobPos.y << "\n"
+			           << "zoomCnt "  << zoomCnt  << "\n"
 					   << "mob1.mobPos.x " << mob1.mobPos.x << "\n"
 					   << "mob1.mobPos.y " << mob1.mobPos.y << "\n"			
 					   << "drawtxt3 " << drawtxt3 << "\n";
