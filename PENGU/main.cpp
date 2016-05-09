@@ -130,49 +130,51 @@ void eventsOn(){
 	}	
 }	   
 void setZoomRate(float Width, float Height, int wheelDelta) {//шаг смещения умножаем на кол-во смещений, аргуметом присылают целые значения (wheelDelta)  в диапазоне -2..2
-	zoomRate = 50.f * wheelDelta;
 	if ((zoomCnt + wheelDelta >= minZoom) 	 // minZoom = -20;   
-	&&  (zoomCnt + wheelDelta <= maxZoom)) { // maxZoom = +10;
-		
+	&&  (zoomCnt + wheelDelta <= maxZoom)) { // maxZoom = +10;	   			
+		zoomRate = 50.f * wheelDelta;
 		float viewOldLeft = view.getCenter().x - (view.getSize().x / 2);
 		float viewOldTop  = view.getCenter().y - (view.getSize().y / 2);
 		
 		float viewWidth  = Width - zoomRate;
 		float viewHeight = viewWidth*(Height / Width);
 		
-		float viewTopOffset  = (Width  - viewWidth) / 2;
+		float viewTopOffset  = (Width  - viewWidth ) / 2;
 		float viewLeftOffset = (Height - viewHeight) / 2;
 		
 		float viewLeft = viewOldLeft + viewTopOffset;
 		float viewTop  = viewOldTop  + viewLeftOffset;  
 		
 		
-		view.reset(FloatRect(viewLeft, viewTop, viewWidth, viewHeight));
-	
-		zoomCnt = zoomCnt + wheelDelta;
-		
-		
-	}
+		view.reset(FloatRect(viewLeft, viewTop, viewWidth, viewHeight)); 				
+		zoomCnt += wheelDelta;
+	} 	 
+
+	//if ((wheelDelta / 100) != 0) zoomfactor += (wheelDelta / 100);
+	//	view.zoom(zoomfactor); 	
+			
+
 	//{start debug section 
 	drawtxt = Width;
 	drawtxt2 = Height;
 	//}end debug section 
 }	
-void autoResize() { //надо дописать ограничение минимальный размер окна 640х480  например таким способом, и должен быть способ задавать без вектора	window.setSize(sf::Vector2u(640, 480));	   
-	if (window.getSize().x <= 320) window.setSize(Vector2u(320, window.getSize().y     )); 
-	if (window.getSize().y <= 240) window.setSize(Vector2u(     window.getSize().x, 240)); 
+void autoResize() { 
+	if (window.getSize().x <= 640) window.setSize(Vector2u(640, window.getSize().y     )); 
+	if (window.getSize().y <= 480) window.setSize(Vector2u(     window.getSize().x, 480)); 
 
 	if ((window.getSize().x != winSizeX) 
 	 || (window.getSize().y != winSizeY)) {
-		winSizeX = static_cast<float>( window.getSize().x);							//получаем рамеры окна, для вычисления соотношения сторон			  
+		winSizeX = static_cast<float>( window.getSize().x);										  
 		winSizeY = static_cast<float>( window.getSize().y);
 
-		view.reset(FloatRect(0.f, 0.f, winSizeX, winSizeY));
+		//view.reset(FloatRect(0.f, 0.f, winSizeX, winSizeY));
 		//view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.5f, 1.5f));
 		//view.getViewport().
 		int zoomDelta = zoomCnt;
 		zoomCnt = 0;
-		setZoomRate(winSizeX, winSizeY, zoomDelta);
+		setZoomRate(window.getSize().x, window.getSize().y, zoomDelta);
+		//setZoomRate(winSizeX, winSizeY, zoomDelta);
 		//{start debug section 
 		drawtxt = winSizeX;
 		drawtxt2 = winSizeY;
