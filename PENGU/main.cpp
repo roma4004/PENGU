@@ -3,8 +3,8 @@
 #pragma hdrstop	       //указывает что файлы выше общие для всех файлов и не нужндаются в перекомпиляции, в итоге ускоряет комипиляцию
 //#include "MainObject.h"
 #include "Mob.h"
-#include "map.h"
-#include "view.h"
+#include "Cam.h"
+#include "map.h"   
 #include "main.h"
 using namespace sf;
 bool isWindowFocused = true;
@@ -15,7 +15,7 @@ const float DEG = 57.29577f;
 b2Vec2 Gravity(0.f, 9.8f);
 b2World World(Gravity);
 RenderWindow window(VideoMode(DefWinSizeX, DefWinSizeY, 32), "PENGU"); 
-
+Cam Camera;
 void Mountain(int center, int count, int LineTarget, int MountainTopDelete) {
 		if (count - MountainTopDelete <= 0)   return;
 		Mountain(center, count - 1, LineTarget - 1, MountainTopDelete);
@@ -113,52 +113,23 @@ void eventsOn(){
 	Event e;
 	while (window.pollEvent(e)) { 
 		switch (e.type) { 
-			case Event::Closed         : window.close();	              break;        //  закрываем окно если нажат крестик в углу окна  			 
-			case Event::GainedFocus    : isWindowFocused = true;          break;       // получение фокуса включаем управление
-			case Event::LostFocus      : isWindowFocused = false;         break;      // потеря фокуса отключаем управление 
-			case Event::MouseEntered   : isWindowFocused = true;          break;
-			case Event::MouseWheelMoved: setZoomRate(view.getSize().x, 
-				                                     view.getSize().y,
-				                                     e.mouseWheel.delta); break; //e.mouseWheel.delta - на сколько сместилось // e.mouseWheel.x - положение курсора по х курсора в момент смещения //e.mouseWheel.y - положение по у
+			case Event::Closed         : window.close();	                      break;   //  закрываем окно если нажат крестик в углу окна  			 
+			case Event::GainedFocus    : isWindowFocused = true;                  break;  // получение фокуса включаем управление
+			case Event::LostFocus      : isWindowFocused = false;                 break; // потеря фокуса отключаем управление 
+			case Event::MouseEntered   : isWindowFocused = true;                  break;
+			case Event::MouseWheelMoved: Camera.setZoomDelta(e.mouseWheel.delta); break; //e.mouseWheel.delta - на сколько сместилось // e.mouseWheel.x - положение курсора по х курсора в момент смещения //e.mouseWheel.y - положение по у
 		}  
 	}		
 	if (Mouse::isButtonPressed(Mouse::Button::Middle)) { 
-		view.reset(FloatRect(0.f, 0.f, 
-			static_cast<float>(window.getSize().x), 
-			static_cast<float>(window.getSize().y) ));
-		zoomCnt = 0; 
+		Camera.reset(
+			FloatRect(0.f,0.f,
+				static_cast<float>(window.getSize().x),
+				static_cast<float>(window.getSize().y)
+			)
+		);
+		Camera.setZoomCnt(0);
 	}	
 }	   
-void setZoomRate(float Width, float Height, int wheelDelta) {//шаг смещения умножаем на кол-во смещений, аргуметом присылают целые значения (wheelDelta)  в диапазоне -2..2
-	if ((zoomCnt + wheelDelta >= minZoom) 	 // minZoom = -20;   
-	&&  (zoomCnt + wheelDelta <= maxZoom)) { // maxZoom = +10;	   			
-		zoomRate = 50.f * wheelDelta;
-		float viewOldLeft = view.getCenter().x - (view.getSize().x / 2);
-		float viewOldTop  = view.getCenter().y - (view.getSize().y / 2);
-		
-		float viewWidth  = Width - zoomRate;
-		float viewHeight = viewWidth*(Height / Width);
-		
-		float viewTopOffset  = (Width  - viewWidth ) / 2;
-		float viewLeftOffset = (Height - viewHeight) / 2;
-		
-		float viewLeft = viewOldLeft + viewTopOffset;
-		float viewTop  = viewOldTop  + viewLeftOffset;  
-		
-		
-		view.reset(FloatRect(viewLeft, viewTop, viewWidth, viewHeight)); 				
-		zoomCnt += wheelDelta;
-	} 	 
-
-	//if ((wheelDelta / 100) != 0) zoomfactor += (wheelDelta / 100);
-	//	view.zoom(zoomfactor); 	
-			
-
-	//{start debug section 
-	drawtxt = Width;
-	drawtxt2 = Height;
-	//}end debug section 
-}	
 void autoResize() { 
 	if (window.getSize().x <= 640) window.setSize(Vector2u(640, window.getSize().y     )); 
 	if (window.getSize().y <= 480) window.setSize(Vector2u(     window.getSize().x, 480)); 
@@ -171,9 +142,8 @@ void autoResize() {
 		//view.reset(FloatRect(0.f, 0.f, winSizeX, winSizeY));
 		//view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.5f, 1.5f));
 		//view.getViewport().
-		int zoomDelta = zoomCnt;
-		zoomCnt = 0;
-		setZoomRate(window.getSize().x, window.getSize().y, zoomDelta);
+		int zoomDelta = Camera.getZoomCnt(); Camera.setZoomCnt(0);
+		Camera.setZoomRate(window.getSize().x, window.getSize().y, zoomDelta);
 		//setZoomRate(winSizeX, winSizeY, zoomDelta);
 		//{start debug section 
 		drawtxt = winSizeX;
@@ -288,20 +258,31 @@ int main(){
 		//if (mob1.ox == view.getCenter().x) innertCntX = 2;
 		//if (mob1.oy == view.getCenter().y) innertCntY = 2;
 
-		      if (mob1.isSelected()){setCamCenter(mob1.mobPos);
-		}else if (mob2.isSelected()) setCamCenter(mob2.mobPos);
+		      if (mob1.isSelected()){Camera.setCamCenterOn(mob1.mobPos.x, mob1.mobPos.y);
+		}else if (mob2.isSelected()) Camera.setCamCenterOn(mob2.mobPos.x, mob2.mobPos.y);
 
-		mob1.update(window, SCALE, DEG, view);
-
+		mob1.update(window, SCALE, DEG);
+			if (Mouse::isButtonPressed(Mouse::Button::Left)) {
+		Vector2i mouseCoord = Mouse::getPosition(window);
+		mouseCoord.x += Camera.getCenterX() - (Camera.getSizeX() / 2);
+		mouseCoord.y += Camera.getCenterY() - (Camera.getSizeY() / 2);
+		if (IntRect(mob1.mobPos.x - 8, mob1.mobPos.y - 16,
+					mob1.mobPos.x + 8, mob1.mobPos.y + 16).contains(mouseCoord)
+			) mob1.select();
+		if (IntRect(mob2.mobPos.x - 8, mob2.mobPos.y - 16,
+					mob2.mobPos.x + 8, mob2.mobPos.y + 16).contains(mouseCoord)
+			) mob2.select();
+		//осталось добавить поправку на зум
+	}
 		mob2.patrul(600, 1800, SCALE);
-		mob2.update(window, SCALE, DEG, view);
+		mob2.update(window, SCALE, DEG);
 		
-		viewMove(window);
+		Camera.viewMove(window);
 		//{start debug section 
 		textRenderBuff.str("");								    // чистим поток
-		textRenderBuff << "zoomSetX " << drawtxt  << "\n" 	   // и поочередно заносим отладочную информацию
-			           << "zoomSetY " << drawtxt2 << "\n"	
-			           << "zoomCnt "  << zoomCnt  << "\n"
+		textRenderBuff << "zoomSetX " << Camera.debug_txt_Width  << "\n" 	   // и поочередно заносим отладочную информацию
+			           << "zoomSetY " << Camera.debug_txt_Height << "\n"
+			           << "zoomCnt "  << Camera.getZoomCnt() << "\n"
 					   << "mob1.mobPos.x " << mob1.mobPos.x << "\n"
 					   << "mob1.mobPos.y " << mob1.mobPos.y << "\n"			
 					   << "drawtxt3 " << drawtxt3 << "\n";
@@ -309,8 +290,7 @@ int main(){
 		text.setPosition(mob1.mobPos.x - 30, mob1.mobPos.y - 160); // указание позиции текста на экране
 		window.draw(text);					          // отрисовываем текст
 		//}end debug section 
-		window.setView(view);
-		window.display();	
+		Camera.renderAll(window);
 		}  
 	return 0;
 } 

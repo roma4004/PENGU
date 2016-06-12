@@ -48,7 +48,7 @@ class Mob{
 		void InvetoryAdd(int idElem, int cntElem);
 		void InvetoryDropAllElem();
 		int InvetoryGetCntElem(int idElem);
-		void update(RenderWindow &window, float SCALE, float DEG, View &view);
+		void update(RenderWindow &window, float SCALE, float DEG);
 		void move();
 		void patrul(int start, int end, float SCALE);
 		void select();

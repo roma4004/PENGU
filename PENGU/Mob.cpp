@@ -1,7 +1,7 @@
 #include "Mob.h"
 #include <SFML/Graphics.hpp>				//нужно поубирать эти инклюды в главный файл, а из него уже аргументами присылать все необходимое
 #include <Box2D/Box2D.h> 					//нужно поубирать эти инклюды в главный файл, а из него уже аргументами присылать все необходимое
-using namespace sf;
+
 ////////////////////////////////////////////////////////////
 /// \constuct objects like settlers into set coordinate...	 
 /// todo: нужно сделать перегрузку функции дл€ создание объекта с заданной текстурой
@@ -77,7 +77,7 @@ int Mob::InvetoryGetCntElem(int idElem) {
 	}return result; //можно просто хранить общее колво предметов, когда выводить уже проставл€ть им щетчик, 
 					//даже если в €чейке 155 ед. то удобно будет разбить их на две и вывести два спрайта, но хранить будет как одну запись.
 }
-void Mob::update(RenderWindow &window, float SCALE, float DEG, View &view) {
+void Mob::update(RenderWindow &window, float SCALE, float DEG) {
 	mobPos.x = mpeople->GetPosition().x*SCALE;
 	mobPos.y = mpeople->GetPosition().y*SCALE;
 	mobSprite.setPosition(mobPos.x, mobPos.y);
@@ -85,12 +85,7 @@ void Mob::update(RenderWindow &window, float SCALE, float DEG, View &view) {
 	window.draw(mobSprite);
 	//mobView.setCenter(mobPos.x, mobPos.y);
   //if (Mouse::isButtonPressed(Mouse::Left))	
-	if (Mouse::isButtonPressed(Mouse::Button::Left)) {
-		Vector2i mouseCoord = Mouse::getPosition(window);
-		mouseCoord.x += view.getCenter().x - (view.getSize().x / 2);
-		mouseCoord.y += view.getCenter().y - (view.getSize().y / 2);	  		
-		if (IntRect(mobPos.x - 8, mobPos.y - 16, mobPos.x + 8, mobPos.y + 16).contains(mouseCoord)) select();	 //осталось добавить поправку на зум
-	}
+
 }			//b2Vec2 vec2;   
 			//Vector2i vec2i = Mouse::getPosition(window);
 			//vec2.x = vec2i.x;

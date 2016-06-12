@@ -21,18 +21,21 @@
     <ClCompile Include="Mob.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\Program%27s\GitHub\PENGU\PENGU\Cam.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mob.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="view.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="map.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\Program%27s\GitHub\PENGU\PENGU\Cam.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
