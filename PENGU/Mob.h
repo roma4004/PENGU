@@ -1,6 +1,7 @@
 #pragma once 
-#include <Box2D/Box2D.h> 
 #include <SFML/Graphics.hpp>
+#include <Box2D/Box2D.h> 
+using namespace sf;		 
 /// todo: сделать инвентарь в виде списка, в который потом заносить айди предмета и кол-во
 		// int invMaxItem=10;		   
 		// int invLimitEachItem=100;  	 
@@ -33,8 +34,8 @@ class Mob{
 		unsigned __int8 health;		//0..255	<stil not used> 
 		unsigned __int8 armore;		//0..255	<stil not used>
 		
-		sf::Texture mobTexture;
-		sf::Sprite mobSprite;
+		Texture mobTexture;
+		Sprite mobSprite;
 		b2Body *mpeople;
 		b2PolygonShape PolygonShape;
 		b2BodyDef BodyDef;
@@ -42,12 +43,12 @@ class Mob{
 	public:	
 		//View mobView;				
 		b2Vec2 mobPos;
-		Mob(float x, float y, float SCALE, b2World &World, sf::IntRect rectangl);  //x,y-spawn coord; scale-  ; ;
+		Mob(float x, float y, float SCALE, b2World &World, IntRect rectangl);  //x,y-spawn coord; scale-  ; ;
 	    ~Mob();			  			
 		void InvetoryAdd(int idElem, int cntElem);
 		void InvetoryDropAllElem();
 		int InvetoryGetCntElem(int idElem);
-		void update(sf::RenderWindow &window, float SCALE, float DEG);
+		void update(RenderWindow &window, float SCALE, float DEG);
 		void move();
 		void patrul(int start, int end, float SCALE);
 		void select();

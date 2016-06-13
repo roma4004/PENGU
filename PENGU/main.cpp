@@ -198,35 +198,35 @@ int main(){
 	//mob1.InvetoryAdd(43, 34);
 	//Clock clock; //создаем переменную времени, т.о. привязка ко времени(а не загруженности/мощности процессора).
 
-	float innertCntX = 2;
-	float innertCntY = 2;
+		float innertCntX = 2;
+		float innertCntY = 2;
 
-	float innertIncreaseX = 2;
-	float innertIncreaseY = 2;
+		float innertIncreaseX = 2;
+		float innertIncreaseY = 2;
 
-	std::ostringstream textRenderBuff;
+		std::ostringstream textRenderBuff;
 
-	while (window.isOpen()) { 	
+		while (window.isOpen()) { 	
  
-	eventsOn();	   	
-	autoResize();  
-	
-	//float time = clock.getElapsedTime().asMicroseconds(); //запись прошедшего времени в микросекундах
-	//clock.restart(); //перезагружает время
-	//time = time / 800; //скорость игры	
+		eventsOn();	   	
+		autoResize();  
+		
+		//float time = clock.getElapsedTime().asMicroseconds(); //запись прошедшего времени в микросекундах
+	    //clock.restart(); //перезагружает время
+		//time = time / 800; //скорость игры	
 
-	World.Step( (1.f / optimaFPS), 8, 3);
-	window.clear(Color(181,228,240,1));
+		World.Step( (1.f / optimaFPS), 8, 3);
+		window.clear(Color(181,228,240,1));
 
-	for (b2Body* it = World.GetBodyList(); it != 0; it = it->GetNext()) {//надо сделать метод возвращающий спрайт по запросу из боди it->GetUserData() == "box"
-		if (it->GetUserData() == "box"      ) { drawSprite(sBox      , it->GetPosition(), it->GetAngle() ); }
-		if (it->GetUserData() == "disk"     ) { drawSprite(sDisk     , it->GetPosition(), it->GetAngle() ); }
-		if (it->GetUserData() == "EdgeWorld") { drawSprite(sEdgeWorld, it->GetPosition(), it->GetAngle() ); }
-		if (it->GetUserData() == "Ground"   ) { drawSprite(sGround   , it->GetPosition(), it->GetAngle() ); }
-		if (it->GetUserData() == "TopGround") { drawSprite(sTopGround, it->GetPosition(), it->GetAngle() ); }
-	}	  
-	mob1.move();
-	mob2.move();
+		for (b2Body* it = World.GetBodyList(); it != 0; it = it->GetNext()) {//надо сделать метод возвращающий спрайт по запросу из боди it->GetUserData() == "box"
+			if (it->GetUserData() == "box"      ) { drawSprite(sBox      , it->GetPosition(), it->GetAngle() ); }
+			if (it->GetUserData() == "disk"     ) { drawSprite(sDisk     , it->GetPosition(), it->GetAngle() ); }
+			if (it->GetUserData() == "EdgeWorld") { drawSprite(sEdgeWorld, it->GetPosition(), it->GetAngle() ); }
+			if (it->GetUserData() == "Ground"   ) { drawSprite(sGround   , it->GetPosition(), it->GetAngle() ); }
+			if (it->GetUserData() == "TopGround") { drawSprite(sTopGround, it->GetPosition(), it->GetAngle() ); }
+		}	  
+		mob1.move();
+		mob2.move();
 	//	if ((Keyboard::isKeyPressed(Keyboard::Right)) && (isControl)) { mob1.move(3); }
 	//	if ((Keyboard::isKeyPressed(Keyboard::Left) ) && (isControl)) { mob1.move(4); }
 	//	if ((Keyboard::isKeyPressed(Keyboard::Up)   ) && (isControl)) { mob1.move(2); }
@@ -258,25 +258,26 @@ int main(){
 		//if (mob1.ox == view.getCenter().x) innertCntX = 2;
 		//if (mob1.oy == view.getCenter().y) innertCntY = 2;
 
-	      if (mob1.isSelected()){Camera.setCamCenterOn(mob1.mobPos.x, mob1.mobPos.y);
-	}else if (mob2.isSelected()) Camera.setCamCenterOn(mob2.mobPos.x, mob2.mobPos.y);
+		      if (mob1.isSelected()){Camera.setCamCenterOn(mob1.mobPos.x, mob1.mobPos.y);
+		}else if (mob2.isSelected()) Camera.setCamCenterOn(mob2.mobPos.x, mob2.mobPos.y);
 
-	mob1.update(window, SCALE, DEG);
-	if (Mouse::isButtonPressed(Mouse::Button::Left)) {
-	Vector2i mouseCoord = Mouse::getPosition(window);
-	mouseCoord.x += Camera.getCenterX() - (Camera.getSizeX() / 2);
-	mouseCoord.y += Camera.getCenterY() - (Camera.getSizeY() / 2);
-	if (IntRect(mob1.mobPos.x - 8, mob1.mobPos.y - 16,
-				mob1.mobPos.x + 8, mob1.mobPos.y + 16).contains(mouseCoord)
-		) mob1.select();
-	if (IntRect(mob2.mobPos.x - 8, mob2.mobPos.y - 16,
-				mob2.mobPos.x + 8, mob2.mobPos.y + 16).contains(mouseCoord)
-		) mob2.select();		//осталось добавить поправку на зум
+		mob1.update(window, SCALE, DEG);
+			if (Mouse::isButtonPressed(Mouse::Button::Left)) {
+		Vector2i mouseCoord = Mouse::getPosition(window);
+		mouseCoord.x += Camera.getCenterX() - (Camera.getSizeX() / 2);
+		mouseCoord.y += Camera.getCenterY() - (Camera.getSizeY() / 2);
+		if (IntRect(mob1.mobPos.x - 8, mob1.mobPos.y - 16,
+					mob1.mobPos.x + 8, mob1.mobPos.y + 16).contains(mouseCoord)
+			) mob1.select();
+		if (IntRect(mob2.mobPos.x - 8, mob2.mobPos.y - 16,
+					mob2.mobPos.x + 8, mob2.mobPos.y + 16).contains(mouseCoord)
+			) mob2.select();
+		//осталось добавить поправку на зум
 	}
 		mob2.patrul(600, 1800, SCALE);
 		mob2.update(window, SCALE, DEG);
 		
-		Camera.KeyboardControl(window);
+		Camera.viewMove(window);
 		//{start debug section 
 		textRenderBuff.str("");								    // чистим поток
 		textRenderBuff << "zoomSetX " << Camera.debug_txt_Width  << "\n" 	   // и поочередно заносим отладочную информацию

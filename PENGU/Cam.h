@@ -11,7 +11,7 @@ public:
 	Cam();
 	~Cam();
 
-	void KeyboardControl(sf::RenderWindow &window);
+	void viewMove(sf::RenderWindow &window);
 	void reset(sf::FloatRect rectangle);
 
 	void setCamCenterOn(float coordX, float coordY);
