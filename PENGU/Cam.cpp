@@ -21,7 +21,7 @@ void Cam::reset(sf::FloatRect rectangle) {
 //	vec2.y = vec2i.y;
 //	return vec2;
 //}
-void Cam::viewMove(sf::RenderWindow &window) {
+void Cam::KeyboardControl(sf::RenderWindow &window) {
 	//Event onFocusEvent;	//тут еще не доделан фокус, нужно как в том управлении игроком сделать
 	//while (window.pollEvent(onFocusEvent)) {
 	//if (onFocusEvent.type == Event::GainedFocus){		
