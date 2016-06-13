@@ -1,14 +1,11 @@
 #include "Mob.h"
-#include <SFML/Graphics.hpp>				//нужно поубирать эти инклюды в главный файл, а из него уже аргументами присылать все необходимое
-#include <Box2D/Box2D.h> 					//нужно поубирать эти инклюды в главный файл, а из него уже аргументами присылать все необходимое
-
 ////////////////////////////////////////////////////////////
 /// \constuct objects like settlers into set coordinate...	 
 /// todo: нужно сделать перегрузку функции дл€ создание объекта с заданной текстурой
 ////////////////////////////////////////////////////////////
 
 Mob::Mob(float SpawnPosX, float SpawnPosY, float SCALE,
-	b2World &World, IntRect TextureRectangl) :isSelect(false), invCntElem(0) {
+	b2World &World, sf::IntRect TextureRectangl) :isSelect(false), invCntElem(0) {
 	mobTexture.loadFromFile("images/tilemap.png");		  //load texture tile map
 	mobSprite.setTexture(mobTexture);
 	mobSprite.setTextureRect(TextureRectangl);
@@ -77,7 +74,7 @@ int Mob::InvetoryGetCntElem(int idElem) {
 	}return result; //можно просто хранить общее колво предметов, когда выводить уже проставл€ть им щетчик, 
 					//даже если в €чейке 155 ед. то удобно будет разбить их на две и вывести два спрайта, но хранить будет как одну запись.
 }
-void Mob::update(RenderWindow &window, float SCALE, float DEG) {
+void Mob::update(sf::RenderWindow &window, float SCALE, float DEG) {
 	mobPos.x = mpeople->GetPosition().x*SCALE;
 	mobPos.y = mpeople->GetPosition().y*SCALE;
 	mobSprite.setPosition(mobPos.x, mobPos.y);
@@ -107,10 +104,10 @@ void Mob::update(RenderWindow &window, float SCALE, float DEG) {
 			//if (mobSprite.getGlobalBounds().contains(Mouse::getPosition(window))) {	
 
 void Mob::move() { if (!this->isControl) return; 	//сделать задание управл€емости по выделению
-	if (Keyboard::isKeyPressed(Keyboard::Right) ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.5f,  0.f ), mpeople->GetWorldCenter(), 1); } //переделать отправление команд на конкретного экземпл€ра класса
-	if (Keyboard::isKeyPressed(Keyboard::Left)  ) { mpeople->ApplyLinearImpulse(b2Vec2(-0.5f,  0.f ), mpeople->GetWorldCenter(), 1); }
-	if (Keyboard::isKeyPressed(Keyboard::Up)    ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.f , -0.5f), mpeople->GetWorldCenter(), 1); }
-	if (Keyboard::isKeyPressed(Keyboard::Down)  ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.f ,  0.5f), mpeople->GetWorldCenter(), 1); }
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.5f,  0.f ), mpeople->GetWorldCenter(), 1); } //переделать отправление команд на конкретного экземпл€ра класса
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)  ) { mpeople->ApplyLinearImpulse(b2Vec2(-0.5f,  0.f ), mpeople->GetWorldCenter(), 1); }
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)    ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.f , -0.5f), mpeople->GetWorldCenter(), 1); }
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)  ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.f ,  0.5f), mpeople->GetWorldCenter(), 1); }
 }
 void Mob::patrul(int start, int end, float SCALE) {
 	mpeople->SetTransform(mpeople->GetPosition(), 0.f);
