@@ -5,8 +5,10 @@ class Cam
 {
 	int zoomCnt = 0, maxZoom = 10, minZoom = -20;  //zoomCnt - текущая позиция приблежения/отдаления, максимальная(maxZoom) и минимальная(minZoom) позиция приближения
 	float zoomRate = 0, zoomfactor = 1;
-
+	  		
+	
 public:
+	sf::Vector2u minWindowSize;
 	float debug_txt_Width, debug_txt_Height;
 	Cam();
 	~Cam();

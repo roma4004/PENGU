@@ -55,7 +55,8 @@ void setObj(float x, float y, void *type) {
 	b2PolygonShape gr;						  
 	gr.SetAsBox(16.f / SCALE, 16.f / SCALE);  
 	b2BodyDef bdef;							  
-	bdef.position.Set(x / SCALE, y / SCALE);  
+	//bdef.position.Set(round(x / SCALE), round(y / SCALE));
+	bdef.position.Set(x / SCALE, y / SCALE);
 	b2Body *body = World.CreateBody(&bdef);	  
 	body->CreateFixture(&gr, 1.f);			  
 	body->SetUserData(type); 
@@ -129,10 +130,11 @@ void eventsOn(){
 		);
 		Camera.setZoomCnt(0);
 	}	
-}	   
+}	 
 void autoResize() { 
-	if (window.getSize().x <= 640) window.setSize(Vector2u(640, window.getSize().y     )); 
-	if (window.getSize().y <= 480) window.setSize(Vector2u(     window.getSize().x, 480)); 
+	//ned func set one side of screen
+	if (window.getSize().x <= Camera.minWindowSize.x) window.setSize(Vector2u(Camera.minWindowSize.x, window.getSize().y     ));
+	if (window.getSize().y <= Camera.minWindowSize.y) window.setSize(Vector2u(    window.getSize().x, Camera.minWindowSize.y));
 
 	if ((window.getSize().x != winSizeX) 
 	 || (window.getSize().y != winSizeY)) {

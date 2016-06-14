@@ -1,7 +1,4 @@
 #include "Mob.h"
-#include <SFML/Graphics.hpp>				//нужно поубирать эти инклюды в главный файл, а из него уже аргументами присылать все необходимое
-#include <Box2D/Box2D.h> 					//нужно поубирать эти инклюды в главный файл, а из него уже аргументами присылать все необходимое
-
 ////////////////////////////////////////////////////////////
 /// \constuct objects like settlers into set coordinate...	 
 /// todo: нужно сделать перегрузку функции дл€ создание объекта с заданной текстурой
@@ -78,14 +75,13 @@ int Mob::InvetoryGetCntElem(int idElem) {
 					//даже если в €чейке 155 ед. то удобно будет разбить их на две и вывести два спрайта, но хранить будет как одну запись.
 }
 void Mob::update(RenderWindow &window, float SCALE, float DEG) {
-	mobPos.x = mpeople->GetPosition().x*SCALE;
-	mobPos.y = mpeople->GetPosition().y*SCALE;
+	mobPos.x = round (mpeople->GetPosition().x*SCALE);
+	mobPos.y = round (mpeople->GetPosition().y*SCALE);
 	mobSprite.setPosition(mobPos.x, mobPos.y);
 	mobSprite.setRotation(mpeople->GetAngle()*DEG);					
 	window.draw(mobSprite);
 	//mobView.setCenter(mobPos.x, mobPos.y);
   //if (Mouse::isButtonPressed(Mouse::Left))	
-
 }			//b2Vec2 vec2;   
 			//Vector2i vec2i = Mouse::getPosition(window);
 			//vec2.x = vec2i.x;
@@ -120,10 +116,9 @@ void Mob::patrul(int start, int end, float SCALE) {
 	mpeople->ApplyLinearImpulse(b2Vec2(offset, 0.f), mpeople->GetWorldCenter(), 1);
 }
 void Mob::select() {
-	//if (Mouse::isButtonPressed(Mouse::Left)) { 
-	
+	//if (Mouse::isButtonPressed(Mouse::Left)) {	
 	isControl = isSelect = isSelect ? false : true;
-}									 //доделать выделение моба и что бы камера фиксировалась на нем когда он выделен
+} //доделать выделение моба и что бы камера фиксировалась на нем когда он выделен
 bool Mob::isSelected() {
 	return isSelect;
 }
