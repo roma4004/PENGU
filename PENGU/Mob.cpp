@@ -74,15 +74,15 @@ int Mob::InvetoryGetCntElem(int idElem) {
 	}return result; //можно просто хранить общее колво предметов, когда выводить уже проставл€ть им щетчик, 
 					//даже если в €чейке 155 ед. то удобно будет разбить их на две и вывести два спрайта, но хранить будет как одну запись.
 }
-void Mob::update(RenderWindow &window, float SCALE, float DEG) {
+void Mob::update(RenderWindow &window, float SCALE, float DEG, Vector2i mouseCoord) {
 	mobPos.x = round (mpeople->GetPosition().x*SCALE);
 	mobPos.y = round (mpeople->GetPosition().y*SCALE);
 	mobSprite.setPosition(mobPos.x, mobPos.y);
 	mobSprite.setRotation(mpeople->GetAngle()*DEG);					
 	window.draw(mobSprite);
 	//mobView.setCenter(mobPos.x, mobPos.y);
-  //if (Mouse::isButtonPressed(Mouse::Left))	
-}			//b2Vec2 vec2;   
+   //if (Mouse::isButtonPressed(Mouse::Left))	
+			//b2Vec2 vec2;   
 			//Vector2i vec2i = Mouse::getPosition(window);
 			//vec2.x = vec2i.x;
 			//vec2.y = vec2i.y;
@@ -101,6 +101,13 @@ void Mob::update(RenderWindow &window, float SCALE, float DEG) {
 			//Edge and chain shapes always return false, even if the chain is a loop.
 
 			//if (mobSprite.getGlobalBounds().contains(Mouse::getPosition(window))) {	
+
+	if (Mouse::isButtonPressed(Mouse::Button::Left)) { 
+		if (IntRect(mobPos.x - 8, mobPos.y - 16,
+					mobPos.x + 8, mobPos.y + 16).contains(mouseCoord)
+			) select();	//осталось добавить поправку на зум	  
+	}
+}
 
 void Mob::move() { if (!this->isControl) return; 	//сделать задание управл€емости по выделению
 	if (Keyboard::isKeyPressed(Keyboard::Right) ) {	mpeople->ApplyLinearImpulse(b2Vec2( 0.5f,  0.f ), mpeople->GetWorldCenter(), 1); } //переделать отправление команд на конкретного экземпл€ра класса

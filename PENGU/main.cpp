@@ -17,17 +17,16 @@ b2World World(Gravity);
 RenderWindow window(VideoMode(DefWinSizeX, DefWinSizeY, 32), "PENGU"); 
 Cam Camera;
 void Mountain(int center, int count, int LineTarget, int MountainTopDelete) {
-		if (count - MountainTopDelete <= 0)   return;
-		Mountain(center, count - 1, LineTarget - 1, MountainTopDelete);
-		int start = center - count + rand() % 2;
-		int end = center + count - rand() % 2;
-		if (start < 1) start = 1;
-		if (end > WIDTH_MAP - 1) end = WIDTH_MAP - 1;
-			for (int i = start; i <= end; i++) {
+	if (count - MountainTopDelete <= 0) return;
+	Mountain(center, count - 1, LineTarget - 1, MountainTopDelete);
+	int start = center - count + rand() % 2;
+	int end = center + count - rand() % 2;
+	if (start < 1) start = 1;
+	if (end > WIDTH_MAP - 1) end = WIDTH_MAP - 1;
+		for (int i = start; i <= end; i++) {
 			TileMap[LineTarget][i] = '3';			
 		}		
-	}
-
+}
 void CreateRandWorld() {
 	srand(static_cast<unsigned int>(time(NULL)));
 	for (int i = 0; i < 100; i++)
@@ -50,7 +49,6 @@ void CreateRandWorld() {
 			if (TileMap[i][j] == '3') setObj((j * 32.f), (i * 32.f), "EdgeWorld");
 		}
 }
-
 void setObj(float x, float y, void *type) {   	
 	b2PolygonShape gr;						  
 	gr.SetAsBox(16.f / SCALE, 16.f / SCALE);  
@@ -92,8 +90,7 @@ void menu(RenderWindow &window) {	//стоит вынести создание текстур в отдельный к
 
 	menu1.setPosition(100.f, 30.f);		              // установка позиции,
 	menu2.setPosition(100.f, 90.f);		             // для пунктов меню
-	while (window.isOpen()){
-
+	while (window.isOpen()){ 
 		eventsOn();
 		window.clear(Color(129,181,221));  // отчистка окна под меню	 
 		menu1.setColor(Color::White);
@@ -131,28 +128,6 @@ void eventsOn(){
 		Camera.setZoomCnt(0);
 	}	
 }	 
-void autoResize() { 
-	//ned func set one side of screen
-	if (window.getSize().x <= Camera.minWindowSize.x) window.setSize(Vector2u(Camera.minWindowSize.x, window.getSize().y     ));
-	if (window.getSize().y <= Camera.minWindowSize.y) window.setSize(Vector2u(    window.getSize().x, Camera.minWindowSize.y));
-
-	if ((window.getSize().x != winSizeX) 
-	 || (window.getSize().y != winSizeY)) {
-		winSizeX = static_cast<float>( window.getSize().x);										  
-		winSizeY = static_cast<float>( window.getSize().y);
-
-		//view.reset(FloatRect(0.f, 0.f, winSizeX, winSizeY));
-		//view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.5f, 1.5f));
-		//view.getViewport().
-		int zoomDelta = Camera.getZoomCnt(); Camera.setZoomCnt(0);
-		Camera.setZoomRate(window.getSize().x, window.getSize().y, zoomDelta);
-		//setZoomRate(winSizeX, winSizeY, zoomDelta);
-		//{start debug section 
-		drawtxt = winSizeX;
-		drawtxt2 = winSizeY;
-		//}end debug section 
-	}
-}
 void drawSprite(Sprite targetSprite, b2Vec2 pos, float angle)
 {
 	//while (angle <= 0 ) { angle += 360.f; }		  //the normalized angle if below 0
@@ -161,7 +136,6 @@ void drawSprite(Sprite targetSprite, b2Vec2 pos, float angle)
 	targetSprite.setRotation(angle*DEG);
 	window.draw(targetSprite);
 }
-
 int main(){		   
 	//window.setFramerateLimit(optimaFPS);                   // обязательно надо сделать что бы настройках можно было задать желаемы макс фпс
 	window.setVerticalSyncEnabled(true);		   //  так же должно управляться с настроек	
@@ -211,7 +185,7 @@ int main(){
 	while (window.isOpen()) { 	
  
 	eventsOn();	   	
-	autoResize();  
+	Camera.autoResize(window);
 	
 	//float time = clock.getElapsedTime().asMicroseconds(); //запись прошедшего времени в микросекундах
 	//clock.restart(); //перезагружает время
@@ -260,26 +234,20 @@ int main(){
 	//if (mob1.ox == view.getCenter().x) innertCntX = 2;
 	//if (mob1.oy == view.getCenter().y) innertCntY = 2;
 
+	//may need friend func between mob & Cam
 	      if (mob1.isSelected()){Camera.setCamCenterOn(mob1.mobPos.x, mob1.mobPos.y);
 	}else if (mob2.isSelected()) Camera.setCamCenterOn(mob2.mobPos.x, mob2.mobPos.y);
-
-	mob1.update(window, SCALE, DEG);
-	if (Mouse::isButtonPressed(Mouse::Button::Left)) {
+	
 	Vector2i mouseCoord = Mouse::getPosition(window);
 	mouseCoord.x += Camera.getCenterX() - (Camera.getSizeX() / 2);
 	mouseCoord.y += Camera.getCenterY() - (Camera.getSizeY() / 2);
-	if (IntRect(mob1.mobPos.x - 8, mob1.mobPos.y - 16,
-				mob1.mobPos.x + 8, mob1.mobPos.y + 16).contains(mouseCoord)
-		) mob1.select();
-	if (IntRect(mob2.mobPos.x - 8, mob2.mobPos.y - 16,
-				mob2.mobPos.x + 8, mob2.mobPos.y + 16).contains(mouseCoord)
-		) mob2.select();		//осталось добавить поправку на зум
-	}
+	mob1.update(window, SCALE, DEG, mouseCoord);
+	
 	mob2.patrul(600, 1800, SCALE);
-	mob2.update(window, SCALE, DEG);
+	mob2.update(window, SCALE, DEG, mouseCoord);
 	
 	Camera.KeyboardControl(window);
-	//{start debug section 
+	///{start debug section 
 	textRenderBuff.str("");								    // чистим поток
 	textRenderBuff << "zoomSetX " << Camera.debug_txt_Width  << "\n" 	   // и поочередно заносим отладочную информацию
 		           << "zoomSetY " << Camera.debug_txt_Height << "\n"
@@ -290,7 +258,7 @@ int main(){
 	text.setString(textRenderBuff.str());		    // потоковое значение конвертируем в строку
 	text.setPosition(mob1.mobPos.x - 30, mob1.mobPos.y - 160); // указание позиции текста на экране
 	window.draw(text);					          // отрисовываем текст
-	//}end debug section 
+	///}end debug section 
 	Camera.renderAll(window);
 	}  
 	return 0;

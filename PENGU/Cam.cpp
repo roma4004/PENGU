@@ -55,10 +55,10 @@ void Cam::setZoomRate(float Width, float Height, int wheelDelta) {//шаг смещения
 	//if ((wheelDelta / 100) != 0) zoomfactor += (wheelDelta / 100);
 	//	view.zoom(zoomfactor); 	   
 
-	//{start debug section 
+	///{start debug section 
 	debug_txt_Width = Width;
 	debug_txt_Height = Height;
-	//}end debug section 
+	///}end debug section 
 }
 int   Cam::getZoomCnt() {return zoomCnt;           };  
 void  Cam::setZoomCnt(int setArg){zoomCnt = setArg;};
@@ -74,4 +74,34 @@ void  Cam::setZoomDelta(int delta) {
 void Cam::renderAll(sf::RenderWindow &window) {
 	window.setView(view);
 	window.display();
+}	
+void Cam::checkOrSetMinSize(sf::RenderWindow &window) {	//may rename this func to MinSizeConstraints?
+	sf::Vector2u sideSize = window.getSize();
+	if (window.getSize().x <= minWindowSize.x) { 
+		sideSize.x = minWindowSize.x; 
+		window.setSize(sideSize);	
+	}
+	if (window.getSize().y <= minWindowSize.y) { 
+		sideSize.y = minWindowSize.y; 
+		window.setSize(sideSize);	
+	}  	
+}
+void Cam::autoResize(sf::RenderWindow &window) {
+	checkOrSetMinSize(window);
+
+	if ((window.getSize().x != winSize.x)
+	||  (window.getSize().y != winSize.y)) {
+		winSize = window.getSize();				
+
+		//view.reset(FloatRect(0.f, 0.f, winSizeX, winSizeY));
+		//view.setViewport(sf::FloatRect(0.0f, 0.0f, 1.5f, 1.5f));
+		//view.getViewport().
+		int zoomDelta = getZoomCnt(); setZoomCnt(0);
+		setZoomRate(window.getSize().x, window.getSize().y, zoomDelta);
+		//setZoomRate(winSizeX, winSizeY, zoomDelta);
+		///{start debug section 
+		debug_txt_Width = winSize.x;
+		debug_txt_Width = winSize.y;
+		///}end debug section 
+	}
 }

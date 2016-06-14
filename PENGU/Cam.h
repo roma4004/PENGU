@@ -5,10 +5,10 @@ class Cam
 {
 	int zoomCnt = 0, maxZoom = 10, minZoom = -20;  //zoomCnt - текущая позиция приблежения/отдаления, максимальная(maxZoom) и минимальная(minZoom) позиция приближения
 	float zoomRate = 0, zoomfactor = 1;
-	  		
-	
+	sf::Vector2u minWindowSize;	  		
+	sf::Vector2u winSize; //winSize - Размеры окна с прошлого раза, use in autoResize
 public:
-	sf::Vector2u minWindowSize;
+
 	float debug_txt_Width, debug_txt_Height;
 	Cam();
 	~Cam();
@@ -26,5 +26,7 @@ public:
 	float getSizeY();
 	void renderAll(sf::RenderWindow &window);
 	void setZoomDelta(int delta);
+	void checkOrSetMinSize(sf::RenderWindow &window);
+	void autoResize(sf::RenderWindow &window);
 };
 

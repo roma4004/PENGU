@@ -12,7 +12,6 @@ void eventsOn();
 
 void drawSprite(sf::Sprite targetSprite, b2Vec2 pos, float angle);
 
-float drawtxt = 0, drawtxt2 = 0, drawtxt3 = 0,
-winSizeX = 0, winSizeY = 0;  // drawtxt - отладочная информация; winSize - Размеры окна с прошлого раза, use in autoResize
+float drawtxt = 0, drawtxt2 = 0, drawtxt3 = 0; // drawtxt - отладочная информация;
 
 unsigned char optimaFPS = 60; 
