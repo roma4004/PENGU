@@ -235,12 +235,20 @@ int main(){
 	//if (mob1.oy == view.getCenter().y) innertCntY = 2;
 
 	//may need friend func between mob & Cam
-	      if (mob1.isSelected()){Camera.setCamCenterOn(mob1.mobPos.x, mob1.mobPos.y);
-	}else if (mob2.isSelected()) Camera.setCamCenterOn(mob2.mobPos.x, mob2.mobPos.y);
+	//      if (mob1.isSelected()){Camera.setCamCenterOn(mob1.mobPos.x, mob1.mobPos.y);
+	//}else if (mob2.isSelected()) Camera.setCamCenterOn(mob2.mobPos.x, mob2.mobPos.y);
+	if (mob1.isSelected()){
+		Camera.smoothMoveTo(mob1.mobPos.x, mob1.mobPos.y);
+	}
+	else if (mob2.isSelected()) {
+		Camera.smoothMoveTo(mob2.mobPos.x, mob2.mobPos.y);
+	}
 	
 	Vector2i mouseCoord = Mouse::getPosition(window);
-	mouseCoord.x += Camera.getCenterX() - (Camera.getSizeX() / 2);
-	mouseCoord.y += Camera.getCenterY() - (Camera.getSizeY() / 2);
+	Vector2f ViewCenter = Camera.getViewCenter();
+	
+	mouseCoord.x += ViewCenter.x - (ViewCenter.x / 2);
+	mouseCoord.y += ViewCenter.y - (ViewCenter.y / 2);
 	mob1.update(window, SCALE, DEG, mouseCoord);
 	
 	mob2.patrul(600, 1800, SCALE);

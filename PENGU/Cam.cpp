@@ -38,7 +38,7 @@ void Cam::setZoomRate(float Width, float Height, int wheelDelta) {//шаг смещения
 	&&  (zoomCnt + wheelDelta <= maxZoom)) { // maxZoom = +10;	   			
 		zoomRate = 50.f * wheelDelta;
 		float viewOldLeft = view.getCenter().x - (view.getSize().x / 2);
-		float viewOldTop  = view.getCenter().y - (view.getSize().y / 2);
+		float viewOldTop = view.getCenter().y - (view.getSize().y / 2);
 
 		float viewWidth = Width - zoomRate;
 		float viewHeight = viewWidth*(Height / Width);
@@ -60,12 +60,10 @@ void Cam::setZoomRate(float Width, float Height, int wheelDelta) {//шаг смещения
 	debug_txt_Height = Height;
 	///}end debug section 
 }
-int   Cam::getZoomCnt() {return zoomCnt;           };  
-void  Cam::setZoomCnt(int setArg){zoomCnt = setArg;};
-float Cam::getCenterX() {return view.getCenter().x;};
-float Cam::getCenterY() {return view.getCenter().y;};
-float Cam::getSizeX()   {return view.getSize().x;  };
-float Cam::getSizeY()   {return view.getSize().y;  };
+int   Cam::getZoomCnt() {return zoomCnt;};  
+void  Cam::setZoomCnt(int setArg) {zoomCnt = setArg;};
+sf::Vector2f Cam::getViewCenter() {return view.getCenter();};
+sf::Vector2f Cam::getViewSize() {return view.getSize();};
 void  Cam::setZoomDelta(int delta) {
 	setZoomRate(view.getSize().x,
 				view.getSize().y,
@@ -105,3 +103,55 @@ void Cam::autoResize(sf::RenderWindow &window) {
 		///}end debug section 
 	}
 }
+float Cam::calcDistance(sf::Vector2f from, sf::Vector2f to) {
+	return sqrt( pow( (to.x - from.x), 2)+ 
+		         pow( (to.y - from.y), 2)
+			   );
+}
+void Cam::smoothMoveTo(float targetX, float targetY){
+	 sf::Vector2f setView; 	 
+	 sf::Vector2f targetCoord; 	
+	 setView = view.getCenter();
+	 targetCoord.x = targetX;
+	 targetCoord.y = targetY;
+	 //надо будет сделать подгонку скорости, что бы обе координаты одновременно приходили к финишу центрирования
+	// дистанцию делить на (60кадров*5секунд) и это будет равняться поправке которую 
+   //  надо будет давать камере на каждом кадре,
+  //   что бы обеспечить центрирование на любом расстоянии за 5 сек
+
+	//разгон
+	//inertForce.x *= 1.1f;
+	//inertForce.y *= 1.1f;
+
+	 //нормальная скорость при приближении
+	//float dist;
+	//dist = abs(calkDistance(setView, targetCoord));
+	//if (dist <= 10) {
+	//	inertForce.x = 3.5; 
+	//	inertForce.y = 3.5;
+	// };
+
+	//if (finalCoord.x > currentViewCoord.x){inertForce.x = finalCoord.x - currentViewCoord.x / (60*5);}
+	//if (finalCoord.x < currentViewCoord.x){inertForce.x = finalCoord.x + currentViewCoord.x / (60*5);}
+	//if (finalCoord.y > currentViewCoord.y){inertForce.y = finalCoord.y - currentViewCoord.y / (60*5);}
+	//if (finalCoord.y < currentViewCoord.y){inertForce.y = finalCoord.y + currentViewCoord.y / (60*5);}
+
+	
+	
+					//200				  	 130		  10
+	if ( targetX > (setView.x + inertForce.x) ) { setView.x += inertForce.x; }
+	if ( targetY > (setView.y + inertForce.y) ) { setView.y += inertForce.y; }
+	if ( targetX < (setView.x - inertForce.x) ) { setView.x -= inertForce.x; }
+	if ( targetY < (setView.y - inertForce.y) ) { setView.y -= inertForce.y; }
+	
+	view.setCenter(setView.x, setView.y);
+}
+//плавное центрирование                                                                 надо отловить случай когда там целое число , допустим обрезать
+///if (mob1.ox >= view.getCenter().x + innertCntX) { setCamCenter(view.getCenter().x + innertCntX, view.getCenter().y); }
+///if (mob1.oy >= view.getCenter().y + innertCntY) { setCamCenter(view.getCenter().x             , view.getCenter().y + innertCntY); }
+///if (mob1.ox <= view.getCenter().x - innertCntX) { setCamCenter(view.getCenter().x - innertCntX, view.getCenter().y); }
+///if (mob1.oy <= view.getCenter().y - innertCntY) { setCamCenter(view.getCenter().x             , view.getCenter().y - innertCntY); }
+///innertIncreaseX = innertCntX *2.5;
+///innertCntX = 2 * 2.5;//floor(innertIncreaseX);
+///innertIncreaseY = innertCntY *2.5;
+///innertCntY = 2 * 2.5;//floor(innertIncreaseY);	 
